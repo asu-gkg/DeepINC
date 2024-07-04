@@ -12,7 +12,7 @@ WORKER_REQUIRED_ENVS = ["WORKER_ID"]
 
 # for launcher to check env
 def check_env():
-    assert "DMLC_ROLE" in os.environ and \
+    assert "ROLE" in os.environ and \
            os.environ["ROLE"].lower() in ["worker", "server", "scheduler"]
     required_envs = COMMON_REQUIRED_ENVS
     if os.environ["ROLE"] == "worker":
