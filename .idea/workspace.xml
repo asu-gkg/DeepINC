@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="change import path">
+    <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="change setup.py">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/server/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -55,7 +56,7 @@
       <option name="presentableId" value="Default" />
       <updated>1720069589720</updated>
       <workItem from="1720069590859" duration="20000" />
-      <workItem from="1720092254716" duration="808000" />
+      <workItem from="1720092254716" duration="1639000" />
     </task>
     <task id="LOCAL-00001" summary="change import path">
       <created>1720092434837</created>
@@ -71,7 +72,14 @@
       <option name="project" value="LOCAL" />
       <updated>1720092439206</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="change setup.py">
+      <created>1720093314356</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1720093314356</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -79,6 +87,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="change import path" />
-    <option name="LAST_COMMIT_MESSAGE" value="change import path" />
+    <MESSAGE value="change setup.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="change setup.py" />
   </component>
 </project>

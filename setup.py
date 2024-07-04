@@ -66,15 +66,9 @@ def test_compile(build_ext, name, code, libraries=None, include_dirs=None, libra
 
 def get_cpp_flags(build_ext):
     last_err = None
-    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-Wall', '-march=native', '-mno-avx512f']
-    flags_to_try = []
-    if sys.platform == 'darwin':
-        # Darwin most likely will have Clang, which has libc++.
-        flags_to_try = [default_flags + ['-stdlib=libc++'],
-                        default_flags]
-    else:
-        flags_to_try = [default_flags,
-                        default_flags + ['-stdlib=libc++']]
+    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-Wall', '-mno-avx512f']
+    flags_to_try = [default_flags + ['-stdlib=libc++'],
+                    default_flags]
     for cpp_flags in flags_to_try:
         try:
             test_compile(build_ext, 'test_cpp_flags', extra_compile_preargs=cpp_flags,
@@ -95,13 +89,10 @@ def get_cpp_flags(build_ext):
 
 def get_link_flags(build_ext):
     last_err = None
-    libtool_flags = ['-Wl,-exported_symbols_list,byteps.exp']
-    ld_flags = ['-Wl,--version-script=byteps.lds', '-fopenmp']
+    libtool_flags = ['-Wl,-exported_symbols_list,deep_inc.exp']
+    ld_flags = ['-Wl,--version-script=deep_inc.lds']
     flags_to_try = []
-    if sys.platform == 'darwin':
-        flags_to_try = [libtool_flags, ld_flags]
-    else:
-        flags_to_try = [ld_flags, libtool_flags]
+    flags_to_try = [libtool_flags, ld_flags]
     for link_flags in flags_to_try:
         try:
             test_compile(build_ext, 'test_link_flags', extra_link_preargs=link_flags,
@@ -124,9 +115,8 @@ def build_server(build_ext, options):
     server_lib.define_macros = options['MACROS']
     server_lib.include_dirs = options['INCLUDES']
     server_lib.sources = ['deep_inc/server/server.cc']
-    server_lib.extra_compile_args = options['COMPILE_FLAGS'] + options['EXTRA_COMPILE_FLAGS']
+    server_lib.extra_compile_args = options['COMPILE_FLAGS']
     server_lib.extra_link_args = options['LINK_FLAGS']
-    server_lib.extra_objects = options['EXTRA_OBJECTS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
 
     build_ext.build_extension(server_lib)
@@ -139,7 +129,7 @@ def get_common_options(build_ext):
     SOURCES = []
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
-
+    INCLUDES = []
     LIBRARY_DIRS = []
     LIBRARIES = []
 
@@ -171,7 +161,7 @@ class custom_build_ext(build_ext):
     def build_extensions(self):
         options = get_common_options(self)
         try:
-            build_server(self, [])
+            build_server(self, options)
         except:
             raise DistutilsSetupError('An ERROR occured while building the server module.\n\n'
                                       '%s' % traceback.format_exc())
@@ -180,6 +170,7 @@ setup(
     name='DeepINC',
     version='0.1',
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
 
     ],
