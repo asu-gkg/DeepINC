@@ -65,7 +65,7 @@ def launch_deep_inc():
 
     elif os.environ.get("FORCE_DISTRIBUTED", "") == "1" or \
          int(os.environ.get("NUM_WORKER", "1")) > 1:
-        command = "python3 -c 'import deep_inc'"
+        command = "echo 'launch server'"
         if int(os.getenv("ENABLE_GDB", 0)):
             command = "gdb -ex 'run' -ex 'bt' -batch --args " + command
         print("Command: %s\n" % command, flush=True)
