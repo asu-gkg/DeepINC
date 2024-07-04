@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 from threading import Thread
 
 
@@ -59,3 +60,32 @@ def get_env(envs_map):
     return (' '.join(envs))
 
 
+class PropagatingThread(threading.Thread):
+    """ propagate exceptions to the parent's thread
+    refer to https://stackoverflow.com/a/31614591/9601110
+    """
+    def __init__(self, callback=None, idx=-1, **kwargs):
+        super().__init__(**kwargs)
+        self.callback = callback
+        self.idx = idx
+
+    def run(self):
+        self.exc = None
+        try:
+            if hasattr(self, '_Thread__target'):
+                #  python 2.x
+                self.ret = self._Thread__target(
+                    *self._Thread__args, **self._Thread__kwargs)
+            else:
+                # python 3.x
+                self.ret = self._target(*self._args, **self._kwargs)
+        except BaseException as e:
+            self.exc = e
+        if self.callback is not None:
+            self.callback(self.idx)
+
+    def join(self):
+        super(PropagatingThread, self).join()
+        if self.exc:
+            raise self.exc
+        return self.exc

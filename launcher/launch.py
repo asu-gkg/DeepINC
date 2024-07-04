@@ -2,12 +2,13 @@ import sys
 import os
 import subprocess
 import threading
-
+from utils import PropagatingThread
 
 COMMON_REQUIRED_ENVS = ["ROLE", "NUM_WORKER", "NUM_SERVER",
                         "PS_ROOT_URI", "PS_ROOT_PORT"]
 
 WORKER_REQUIRED_ENVS = ["WORKER_ID"]
+
 
 
 # for launcher to check env
@@ -33,7 +34,7 @@ def launch_deep_inc():
     check_env()
     os.environ["PYTHONUNBUFFERED"] = "1"
     os.environ["UCX_HANDLE_ERRORS"] = os.getenv("UCX_HANDLE_ERRORS", "none")
-    if os.environ["DMLC_ROLE"] == "worker":
+    if os.environ["ROLE"] == "worker":
         if "NVIDIA_VISIBLE_DEVICES" in os.environ:
             local_size = len(os.environ["NVIDIA_VISIBLE_DEVICES"].split(","))
         else:
@@ -62,10 +63,10 @@ def launch_deep_inc():
 
         join_threads(t)
 
-    elif os.environ.get("BYTEPS_FORCE_DISTRIBUTED", "") == "1" or \
-         int(os.environ.get("DMLC_NUM_WORKER", "1")) > 1:
-        command = "python3 -c 'import byteps.server'"
-        if int(os.getenv("BYTEPS_ENABLE_GDB", 0)):
+    elif os.environ.get("FORCE_DISTRIBUTED", "") == "1" or \
+         int(os.environ.get("NUM_WORKER", "1")) > 1:
+        command = "python3 -c 'import deep_inc'"
+        if int(os.getenv("ENABLE_GDB", 0)):
             command = "gdb -ex 'run' -ex 'bt' -batch --args " + command
         print("Command: %s\n" % command, flush=True)
         my_env = os.environ.copy()
@@ -74,5 +75,4 @@ def launch_deep_inc():
 
 
 if __name__ == "__main__":
-    # launch_deep_inc()
-    check_env()
+    launch_deep_inc()
