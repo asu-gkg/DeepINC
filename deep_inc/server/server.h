@@ -3,7 +3,7 @@
 
 namespace deep_inc {
     namespace server {
-        void start_server();
+        extern "C" void start_server();
     }
 }
 

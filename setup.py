@@ -66,7 +66,7 @@ def test_compile(build_ext, name, code, libraries=None, include_dirs=None, libra
 
 def get_cpp_flags(build_ext):
     last_err = None
-    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-Wall', '-mno-avx512f']
+    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-Wall', '-shared', '-mno-avx512f']
     flags_to_try = [default_flags + ['-stdlib=libc++'],
                     default_flags]
     for cpp_flags in flags_to_try:
@@ -89,8 +89,8 @@ def get_cpp_flags(build_ext):
 
 def get_link_flags(build_ext):
     last_err = None
-    libtool_flags = ['-Wl,-exported_symbols_list,deep_inc.exp']
-    ld_flags = ['-Wl,--version-script=deep_inc.lds']
+    libtool_flags = []
+    ld_flags = []
     flags_to_try = []
     flags_to_try = [libtool_flags, ld_flags]
     for link_flags in flags_to_try:
@@ -124,6 +124,7 @@ def build_server(build_ext, options):
 def get_common_options(build_ext):
     cpp_flags = get_cpp_flags(build_ext)
     link_flags = get_link_flags(build_ext)
+    print('link_flags:', link_flags)
 
     MACROS = [('EIGEN_MPL2_ONLY', 1)]
     SOURCES = []
@@ -166,6 +167,7 @@ class custom_build_ext(build_ext):
             raise DistutilsSetupError('An ERROR occured while building the server module.\n\n'
                                       '%s' % traceback.format_exc())
 
+print("find_packages(): ", find_packages())
 setup(
     name='DeepINC',
     version='0.1',
