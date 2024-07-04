@@ -29,7 +29,7 @@ def check_env():
             os._exit(0)
 
 def launch_deep_inc():
-    print("BytePS launching " + os.environ["DMLC_ROLE"])
+    print("DeepINC launching " + os.environ["ROLE"])
     sys.stdout.flush()
     check_env()
     os.environ["PYTHONUNBUFFERED"] = "1"
@@ -41,9 +41,9 @@ def launch_deep_inc():
             local_size = 1
         t = [None] * local_size
 
-        bind_to_cores = os.getenv("BYTEPS_NUMA_ON", "1") == "1"
+        bind_to_cores = os.getenv("NUMA_ON", "1") == "1"
         if bind_to_cores:
-            user_override = os.getenv("BYTEPS_VISIBLE_CPU_CORES", "").strip()
+            user_override = os.getenv("VISIBLE_CPU_CORES", "").strip()
             if user_override:
                 allocations = parse_num_range(user_override)
             else:
