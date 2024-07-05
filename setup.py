@@ -130,7 +130,7 @@ def get_common_options(build_ext):
     SOURCES = []
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
-    INCLUDES = []
+    INCLUDES = ['ps-lite/include']
     LIBRARY_DIRS = []
     LIBRARIES = []
 
