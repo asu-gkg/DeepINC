@@ -4,21 +4,21 @@ import subprocess
 import threading
 from utils import PropagatingThread
 
-COMMON_REQUIRED_ENVS = ["ROLE", "NUM_WORKER", "NUM_SERVER",
-                        "PS_ROOT_URI", "PS_ROOT_PORT"]
+COMMON_REQUIRED_ENVS = ["DMLC_ROLE", "DMLC_NUM_WORKER", "DMLC_NUM_SERVER",
+                        "DMLC_PS_ROOT_URI", "DMLC_PS_ROOT_PORT"]
 
-WORKER_REQUIRED_ENVS = ["WORKER_ID"]
+WORKER_REQUIRED_ENVS = ["DMLC_WORKER_ID"]
 
 
 
 # for launcher to check env
 def check_env():
-    assert "ROLE" in os.environ and \
-           os.environ["ROLE"].lower() in ["worker", "server", "scheduler"]
+    assert "DMLC_ROLE" in os.environ and \
+           os.environ["DMLC_ROLE"].lower() in ["worker", "server", "scheduler"]
     required_envs = COMMON_REQUIRED_ENVS
-    if os.environ["ROLE"] == "worker":
-        assert "NUM_WORKER" in os.environ
-        num_worker = int(os.environ["NUM_WORKER"])
+    if os.environ["DMLC_ROLE"] == "worker":
+        assert "DMLC_NUM_WORKER" in os.environ
+        num_worker = int(os.environ["DMLC_NUM_WORKER"])
         assert num_worker >= 1
         if num_worker == 1:
             required_envs = []
@@ -29,7 +29,7 @@ def check_env():
             os._exit(0)
 
 def launch_deep_inc():
-    print("DeepINC launching " + os.environ["ROLE"])
+    print("DeepINC launching " + os.environ["DMLC_ROLE"])
     sys.stdout.flush()
     check_env()
     os.environ["PYTHONUNBUFFERED"] = "1"
@@ -64,7 +64,7 @@ def launch_deep_inc():
         join_threads(t)
 
     elif os.environ.get("FORCE_DISTRIBUTED", "") == "1" or \
-         int(os.environ.get("NUM_WORKER", "1")) > 1:
+         int(os.environ.get("DMLC_NUM_WORKER", "1")) > 1:
         command = "echo 'launch server'"
         if int(os.getenv("ENABLE_GDB", 0)):
             command = "gdb -ex 'run' -ex 'bt' -batch --args " + command
