@@ -114,7 +114,9 @@ def get_link_flags(build_ext):
 def build_server(build_ext, options):
     server_lib.define_macros = options['MACROS']
     server_lib.include_dirs = options['INCLUDES']
-    server_lib.sources = ['deep_inc/server/server.cc']
+    server_lib.sources = ['deep_inc/server/server.cc',
+                          'deep_inc/common/cpu_reducer.cc',
+                          ]
     server_lib.extra_compile_args = options['COMPILE_FLAGS']
     server_lib.extra_link_args = options['LINK_FLAGS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
