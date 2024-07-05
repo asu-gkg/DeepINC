@@ -45,7 +45,6 @@ namespace deep_inc
             LOG(INFO) << "DeepINC server engine uses " << engine_thread_num_ << " threads"
                       << ", consider increasing SERVER_ENGINE_THREAD for higher "
                          "performance";
-            CHECK_GE(engine_thread_num_, 1);
 
             // enable scheduling for server engine
             enable_schedule_ = ps::GetEnv("SERVER_ENABLE_SCHEDULE", 0);
@@ -72,7 +71,10 @@ namespace deep_inc
                     engine_threads_.push_back(new std::thread(DeepIncServerEngineThread, i));
                 }
             }
-
+            // init server instance
+            ps::Start(0, "byteps\0");
+            byteps_server_ = new ps::KVServer<SERVER_DATA_TYPE>(0);
+            // byteps_server_->set_request_handle(DeepIncServerHandle);
 
         }
     }
