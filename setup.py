@@ -66,7 +66,7 @@ def test_compile(build_ext, name, code, libraries=None, include_dirs=None, libra
 
 def get_cpp_flags(build_ext):
     last_err = None
-    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-Wall', '-shared', '-mno-avx512f']
+    default_flags = ['-fPIC', '-Ofast', '-Wall', '-shared', '-mno-avx512f']
     flags_to_try = [default_flags + ['-stdlib=libc++'],
                     default_flags]
     for cpp_flags in flags_to_try:
@@ -120,6 +120,7 @@ def build_server(build_ext, options):
     server_lib.extra_compile_args = options['COMPILE_FLAGS']
     server_lib.extra_link_args = options['LINK_FLAGS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
+    server_lib.extra_objects = options['EXTRA_OBJECTS']
 
     build_ext.build_extension(server_lib)
 
@@ -139,6 +140,10 @@ def get_common_options(build_ext):
     # RDMA and NUMA libs
     LIBRARIES += ['numa']
 
+
+    EXTRA_OBJECTS = ['ps-lite/build/libps.a',
+                    'ps-lite/deps/lib/libzmq.a']
+
     # auto-detect rdma
     if has_rdma_header():
         LIBRARIES += ['rdmacm', 'ibverbs', 'rt']
@@ -149,13 +154,15 @@ def get_common_options(build_ext):
             INCLUDES += [f'{ucx_home}/include']
             LIBRARY_DIRS += [f'{ucx_home}/lib']
 
+
     return dict(MACROS=MACROS,
                 INCLUDES=INCLUDES,
                 SOURCES=SOURCES,
                 COMPILE_FLAGS=COMPILE_FLAGS,
                 LINK_FLAGS=LINK_FLAGS,
                 LIBRARY_DIRS=LIBRARY_DIRS,
-                LIBRARIES=LIBRARIES)
+                LIBRARIES=LIBRARIES,
+                EXTRA_OBJECTS=EXTRA_OBJECTS)
 
 
 
