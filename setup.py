@@ -121,7 +121,7 @@ def build_server(build_ext, options):
     server_lib.extra_link_args = options['LINK_FLAGS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
     server_lib.extra_objects = options['EXTRA_OBJECTS']
-
+    print(options['EXTRA_OBJECTS'])
     build_ext.build_extension(server_lib)
 
 def get_common_options(build_ext):

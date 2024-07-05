@@ -1,7 +1,8 @@
 # Install
 ```
-sudo python3 setup.py build_ext --inplace
-sudo python3 setup.py install
+cd ps-lite && make -j
+python3 setup.py build_ext --inplace
+python3 setup.py install
 ```
 
 # Run server
