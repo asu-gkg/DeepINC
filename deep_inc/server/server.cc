@@ -75,7 +75,6 @@ namespace deep_inc
             ps::Start(0, "byteps\0");
             byteps_server_ = new ps::KVServer<SERVER_DATA_TYPE>(0);
             // byteps_server_->set_request_handle(DeepIncServerHandle);
-
         }
     }
 }

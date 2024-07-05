@@ -134,8 +134,8 @@ def get_common_options(build_ext):
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
-    LIBRARY_DIRS = []
-    LIBRARIES = []
+    LIBRARY_DIRS = ['ps-lite/build/lib', 'ps-lite/deps/lib']
+    LIBRARIES = ['ps']
 
     # RDMA and NUMA libs
     LIBRARIES += ['numa']
