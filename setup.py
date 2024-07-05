@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
-from distutils.errors import CompileError, DistutilsError, DistutilsPlatformError, LinkError, DistutilsSetupError, DistutilsExecError
+from distutils.errors import CompileError, DistutilsError, DistutilsPlatformError, LinkError, DistutilsSetupError, \
+    DistutilsExecError
 import subprocess
 import traceback
 import os
@@ -8,9 +9,9 @@ import sys
 import textwrap
 import shlex
 
-
 server_lib = Extension('deep_inc.server.c_lib', [])
 extensions_to_build = [server_lib]
+
 
 def has_rdma_header():
     ret_code = subprocess.call(
@@ -18,11 +19,13 @@ def has_rdma_header():
     if ret_code != 0:
         import warnings
         warnings.warn("\n\n No RDMA header file detected. Will disable RDMA for compilation! \n\n")
-    return ret_code==0
+    return ret_code == 0
+
 
 def use_ucx():
     with_ucx = int(os.environ.get('WITH_UCX', 0))
     return with_ucx
+
 
 def get_ucx_home():
     """ pre-installed ucx path """
@@ -30,15 +33,20 @@ def get_ucx_home():
         return get_ucx_prefix()
     return os.environ.get('UCX_HOME', ucx_default_home)
 
+
 def should_build_ucx():
     has_prebuilt_ucx = os.environ.get('UCX_HOME', '')
     return use_ucx() and not has_prebuilt_ucx
 
+
 ucx_default_home = '/usr/local'
+
+
 def get_ucx_prefix():
     """ specify where to install ucx """
     ucx_prefix = os.getenv('UCX_PREFIX', ucx_default_home)
     return ucx_prefix
+
 
 def test_compile(build_ext, name, code, libraries=None, include_dirs=None, library_dirs=None,
                  macros=None, extra_compile_preargs=None, extra_link_preargs=None):
@@ -67,8 +75,7 @@ def test_compile(build_ext, name, code, libraries=None, include_dirs=None, libra
 def get_cpp_flags(build_ext):
     last_err = None
     default_flags = ['-fPIC', '-Ofast', '-Wall', '-shared', '-mno-avx512f']
-    flags_to_try = [default_flags + ['-stdlib=libc++'],
-                    default_flags]
+    flags_to_try = [default_flags]
     for cpp_flags in flags_to_try:
         try:
             test_compile(build_ext, 'test_cpp_flags', extra_compile_preargs=cpp_flags,
@@ -87,11 +94,11 @@ def get_cpp_flags(build_ext):
 
     raise DistutilsPlatformError(last_err)
 
+
 def get_link_flags(build_ext):
     last_err = None
     libtool_flags = []
     ld_flags = []
-    flags_to_try = []
     flags_to_try = [libtool_flags, ld_flags]
     for link_flags in flags_to_try:
         try:
@@ -114,15 +121,13 @@ def get_link_flags(build_ext):
 def build_server(build_ext, options):
     server_lib.define_macros = options['MACROS']
     server_lib.include_dirs = options['INCLUDES']
-    server_lib.sources = ['deep_inc/server/server.cc',
-                          'deep_inc/common/cpu_reducer.cc',
-                          ]
+    server_lib.sources = options['SOURCES']
     server_lib.extra_compile_args = options['COMPILE_FLAGS']
     server_lib.extra_link_args = options['LINK_FLAGS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
     server_lib.extra_objects = options['EXTRA_OBJECTS']
-    print(options['EXTRA_OBJECTS'])
     build_ext.build_extension(server_lib)
+
 
 def get_common_options(build_ext):
     cpp_flags = get_cpp_flags(build_ext)
@@ -130,7 +135,8 @@ def get_common_options(build_ext):
     print('link_flags:', link_flags)
 
     MACROS = [('EIGEN_MPL2_ONLY', 1)]
-    SOURCES = []
+    SOURCES = ['deep_inc/server/server.cc',
+               'deep_inc/common/cpu_reducer.cc']
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
@@ -140,9 +146,8 @@ def get_common_options(build_ext):
     # RDMA and NUMA libs
     LIBRARIES += ['numa']
 
-
     EXTRA_OBJECTS = ['ps-lite/build/libps.a',
-                    'ps-lite/deps/lib/libzmq.a']
+                     'ps-lite/deps/lib/libzmq.a']
 
     # auto-detect rdma
     if has_rdma_header():
@@ -154,7 +159,6 @@ def get_common_options(build_ext):
             INCLUDES += [f'{ucx_home}/include']
             LIBRARY_DIRS += [f'{ucx_home}/lib']
 
-
     return dict(MACROS=MACROS,
                 INCLUDES=INCLUDES,
                 SOURCES=SOURCES,
@@ -163,7 +167,6 @@ def get_common_options(build_ext):
                 LIBRARY_DIRS=LIBRARY_DIRS,
                 LIBRARIES=LIBRARIES,
                 EXTRA_OBJECTS=EXTRA_OBJECTS)
-
 
 
 # run the customize_compiler
@@ -175,6 +178,7 @@ class custom_build_ext(build_ext):
         except:
             raise DistutilsSetupError('An ERROR occured while building the server module.\n\n'
                                       '%s' % traceback.format_exc())
+
 
 print("find_packages(): ", find_packages())
 setup(
@@ -191,7 +195,7 @@ setup(
     ext_modules=extensions_to_build,
     entry_points={
         'console_scripts': [
-            
+
         ],
     },
 )
