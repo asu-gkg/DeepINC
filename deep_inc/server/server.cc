@@ -18,7 +18,7 @@ namespace deep_inc
         {
             log_key_info_ = ps::GetEnv("PS_KEY_LOG", 0); // default 0
             printf("log_key_info_ = %d\n", log_key_info_);
-            std::string role_str = ps::GetEnv("ROLE", "server"); // default "server"
+            std::string role_str = ps::GetEnv("DMLC_ROLE", "server"); // default "server"
             printf("role_str = %s\n", role_str.c_str());
             if (role_str == std::string("server"))
             {

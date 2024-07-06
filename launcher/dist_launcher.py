@@ -18,10 +18,10 @@ def submit(args):
     print('server_hosts: %s' % server_hosts)
 
     pass_envs = {}
-    pass_envs['NUM_WORKER'] = str(num_worker)
-    pass_envs['NUM_SERVER'] = str(num_server)
-    pass_envs['PS_ROOT_URI'] = str(args.scheduler_ip)
-    pass_envs['PS_ROOT_PORT'] = str(args.scheduler_port)
+    pass_envs['DMLC_NUM_WORKER'] = str(num_worker)
+    pass_envs['DMLC_NUM_SERVER'] = str(num_server)
+    pass_envs['DMLC_PS_ROOT_URI'] = str(args.scheduler_ip)
+    pass_envs['DMLC_PS_ROOT_PORT'] = str(args.scheduler_port)
 
     username = ''
     if args.username is not None:
@@ -31,37 +31,39 @@ def submit(args):
     threads = []
     for (node, port) in [(args.scheduler_ip, args.scheduler_ssh_port)]:
         name = 'scheduler'
-        pass_envs['ROLE'] = name
+        pass_envs['DMLC_ROLE'] = name
         prog = get_env(pass_envs) + (' '.join(args.command))
         threads.append(start_ssh(prog, node, port, username, name))
 
     for t in threads:
         t.join()
 
+
 def signal_handler(signal, frame):
     logging.info('Stop launcher')
     sys.exit(0)
+
 
 if __name__ == '__main__':
     fmt = '%(asctime)s %(levelname)s %(message)s'
     logging.basicConfig(format=fmt, level=logging.INFO)
 
     logging.info('---Start---')
-    parser = argparse.ArgumentParser(description='Launch a distributed training job for BytePS')
+    parser = argparse.ArgumentParser(description='Launch a distributed training job for DeepINC')
     parser.add_argument('-WH', '--worker-hostfile', required=True, type=str,
-                        help = 'the hostfile of worker machines which will run the job.')
+                        help='the hostfile of worker machines which will run the job.')
     parser.add_argument('-SH', '--server-hostfile', required=True, type=str,
-                        help = 'the hostfile of server machines which will run the job.')
+                        help='the hostfile of server machines which will run the job.')
     parser.add_argument('--scheduler-ip', required=True, type=str,
-                        help = 'the ip address of the scheduler')
+                        help='the ip address of the scheduler')
     parser.add_argument('--scheduler-port', required=True, type=int,
-                        help = 'the port of the scheduler')
+                        help='the port of the scheduler')
     parser.add_argument('--username', type=str,
-                        help = 'the username for ssh')
+                        help='the username for ssh')
     parser.add_argument('--scheduler-ssh-port', type=str, default='22',
-                        help = 'the ssh port of the scheduler')
+                        help='the ssh port of the scheduler')
     parser.add_argument('--command', nargs='+',
-                        help = 'command for launching the program')
+                        help='command for launching the program')
     args = parser.parse_args()
 
     signal.signal(signal.SIGINT, signal_handler)
