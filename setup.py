@@ -138,7 +138,8 @@ def get_common_options(build_ext):
     MACROS = [('EIGEN_MPL2_ONLY', 1)]
     SOURCES = ['deep_inc/server/server.cc',
                'deep_inc/common/cpu_reducer.cc',
-               'deep_inc/common/common.cc',]
+               'deep_inc/common/common.cc',
+               'deep_inc/common/logging.cc',]
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
