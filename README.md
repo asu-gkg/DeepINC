@@ -1,8 +1,8 @@
 # Install
 ```
+sudo apt-get install libprotobuf-dev protobuf-compiler
 cd ps-lite && make -j
 python3 setup.py build_ext --inplace
-python3 setup.py install
 ```
 
 # Run server

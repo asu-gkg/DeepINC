@@ -74,7 +74,43 @@ namespace deep_inc
             // init server instance
             ps::Start(0, "byteps\0");
             inc_server_ = new ps::KVServer<SERVER_DATA_TYPE>(0);
-            inc_server_->set_request_handle(DeepIncServerHandle);
+            // inc_server_->set_request_handle(DeepIncServerHandle);
+
+            if (!ps::Postoffice::Get()->is_recovery())
+            {
+                ps::Postoffice::Get()->Barrier(
+                    0, ps::kWorkerGroup + ps::kServerGroup + ps::kScheduler);
+            }
+
+            // clean the server resource
+            ps::Finalize(0, true);
+            if (inc_server_)
+            {
+                delete inc_server_;
+                inc_server_ = nullptr;
+            }
+            if (inc_reducer_)
+            {
+                delete inc_reducer_;
+                inc_reducer_ = nullptr;
+            }
+            BytePSEngineMessage msg;
+            msg.ops = TERMINATE;
+            for (auto q : engine_queues_)
+                q->Push(msg);
+            for (auto t : engine_threads_)
+                t->join();
+
+            for (auto &it : store_)
+            {
+                if (it.second.tensor)
+                {
+                    free(it.second.tensor);
+                }
+            }
+
+            LOG(INFO) << "BytePS server quited normally";
+            return;
         }
     }
 }

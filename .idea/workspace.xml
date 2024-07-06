@@ -3,19 +3,18 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
   <component name="CMakeSettings">
     <configurations>
       <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="merge">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="重新配置环境变量">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deep_inc/server/server.cc" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/server.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launcher/dist_launcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/launcher/dist_launcher.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launcher/launch.py" beforeDir="false" afterPath="$PROJECT_DIR$/launcher/launch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +49,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/asu/DeepINC&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/nancy/PycharmProjects/DeepINC&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -80,6 +79,8 @@
       <workItem from="1720092254716" duration="7251000" />
       <workItem from="1720160445815" duration="23000" />
       <workItem from="1720160852315" duration="3134000" />
+      <workItem from="1720248007025" duration="878000" />
+      <workItem from="1720255055680" duration="6000" />
     </task>
     <task id="LOCAL-00001" summary="change import path">
       <created>1720092434837</created>
@@ -144,7 +145,14 @@
       <option name="project" value="LOCAL" />
       <updated>1720194371091</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="重新配置环境变量">
+      <created>1720205930207</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1720205930207</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -170,6 +178,7 @@
     <MESSAGE value="start ps" />
     <MESSAGE value="add ps lib" />
     <MESSAGE value="merge" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge" />
+    <MESSAGE value="重新配置环境变量" />
+    <option name="LAST_COMMIT_MESSAGE" value="重新配置环境变量" />
   </component>
 </project>

@@ -8,6 +8,7 @@
 #include <set>
 #include <unistd.h>
 #include "../common/cpu_reducer.h"
+#include "msg.h"
 
 #define SERVER_KEY_TYPE uint64_t
 #define SERVER_DATA_TYPE char
@@ -29,6 +30,7 @@ namespace deep_inc
 
         deep_inc::common::CpuReducer *inc_reducer_;
         ps::KVServer<SERVER_DATA_TYPE>* inc_server_;
+        std::unordered_map<uint64_t, BytePSArray> store_;
 
         std::vector<uint64_t> acc_load_;
         extern "C" void start_server();

@@ -40,6 +40,14 @@ namespace deep_inc
             ps::KVPairs<char> sarray; // to temporarily hold it and auto release
             ps::KVMeta req_meta;
         };
+
+        struct BytePSArray
+        {
+            char *tensor;
+            size_t len;
+            int dtype;
+            ps::KVPairs<char> tmp_sarray;
+        };
     }
 }
 
