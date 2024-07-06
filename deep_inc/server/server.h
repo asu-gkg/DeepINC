@@ -28,7 +28,7 @@ namespace deep_inc
         volatile bool enable_schedule_ = false;
 
         deep_inc::common::CpuReducer *inc_reducer_;
-        ps::KVServer<SERVER_DATA_TYPE>* byteps_server_;
+        ps::KVServer<SERVER_DATA_TYPE>* inc_server_;
 
         std::vector<uint64_t> acc_load_;
         extern "C" void start_server();

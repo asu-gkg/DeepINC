@@ -10,10 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="add ps lib">
-      <change beforePath="$PROJECT_DIR$/.idea/DeepINC.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DeepINC.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ps-lite/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/ps-lite/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/server/server.cc" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/server.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/server/server.h" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/server.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +141,15 @@
       <option name="project" value="LOCAL" />
       <updated>1720194371091</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="add ps lib">
+      <option name="closed" value="true" />
+      <created>1720198883391</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1720198883391</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
