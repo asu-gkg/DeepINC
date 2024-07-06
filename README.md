@@ -7,6 +7,11 @@ python3 setup.py build_ext --inplace
 
 # Run server
 ``` 
+export DMLC_NUM_WORKER=2
+export DMLC_NUM_SERVER=1
+export DMLC_ROLE=server
+export DMLC_PS_ROOT_URI=10.4.173.253
+export DMLC_PS_ROOT_PORT=12345
 python3 -c "import deep_inc.server"
 ```
 
