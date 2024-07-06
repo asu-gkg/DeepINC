@@ -12,6 +12,25 @@ namespace deep_inc
         void DeepIncServerEngineThread(int i)
         {
             std::cout << "DeepIncServer Engine Thread " << i << " started" << std::endl;
+            auto& q = engine_queues_[i];
+            while (true)
+            {
+                BytePSEngineMessage msg;
+                q->WaitAndPop(&msg);
+                if(msg.ops == TERMINATE){
+                    break;
+                }
+                CHECK(msg.dst);
+                CHECK(msg.src);
+            }
+            
+        }
+
+        void BytePSHandler(const ps::KVMeta &req_meta,
+                           const ps::KVPairs<char> &req_data,
+                           ps::KVServer<char> *server)
+        {
+
         }
 
         void init_global_env()

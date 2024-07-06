@@ -122,7 +122,8 @@ def build_server(build_ext, options):
     server_lib.define_macros = options['MACROS']
     server_lib.include_dirs = options['INCLUDES']
     server_lib.sources = options['SOURCES']
-    server_lib.extra_compile_args = options['COMPILE_FLAGS']
+    server_lib.extra_compile_args = options['COMPILE_FLAGS']+\
+                     ['-DBYTEPS_BUILDING_SERVER']
     server_lib.extra_link_args = options['LINK_FLAGS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
     server_lib.extra_objects = options['EXTRA_OBJECTS']
@@ -136,7 +137,8 @@ def get_common_options(build_ext):
 
     MACROS = [('EIGEN_MPL2_ONLY', 1)]
     SOURCES = ['deep_inc/server/server.cc',
-               'deep_inc/common/cpu_reducer.cc']
+               'deep_inc/common/cpu_reducer.cc',
+               'deep_inc/common/common.cc',]
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
