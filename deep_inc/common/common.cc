@@ -20,7 +20,7 @@
 #include "common.h"
 #include "logging.h"
 
-namespace byteps
+namespace deep_inc
 {
     namespace common
     {

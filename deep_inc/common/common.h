@@ -41,7 +41,7 @@
 #include <thread>
 #include <Python.h>
 
-namespace byteps
+namespace deep_inc
 {
     namespace common
     {

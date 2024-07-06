@@ -24,7 +24,6 @@ namespace deep_inc
 {
     namespace common
     {
-
         LogMessage::LogMessage(const char *fname, int line, LogLevel severity)
             : fname_(fname), line_(line), severity_(severity) {}
 
