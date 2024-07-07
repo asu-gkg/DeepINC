@@ -40,6 +40,14 @@ namespace deep_inc
         std::unordered_map<uint64_t, UpdateBuf> update_buf_;
         std::unordered_map<uint64_t, std::unique_ptr<common::compressor::Compressor>> compressor_map_;
 
+        // push & pull flag
+        std::vector<std::mutex> flag_mu_;
+        std::vector<std::unordered_map<uint64_t, bool> > is_push_finished_;
+        std::vector<std::unordered_map<uint64_t, std::vector<ps::KVMeta> > > q_pull_reqmeta_;
+        std::vector<std::unordered_map<uint64_t, std::set<int> > > seen_sender_;
+        std::vector<std::unordered_map<uint64_t, size_t> > pull_cnt_;
+
+
         deep_inc::common::CpuReducer *inc_reducer_;
         ps::KVServer<SERVER_DATA_TYPE> *inc_server_;
         std::unordered_map<uint64_t, BytePSArray> store_;
