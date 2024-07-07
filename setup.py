@@ -231,6 +231,9 @@ def get_common_options(build_ext):
     INCLUDES += cuda_include_dirs
     LIBRARY_DIRS += cuda_lib_dirs
 
+    print("CUDA_INCLUDES: ", cuda_include_dirs)
+    print("CUDA_LIBS: ", cuda_lib_dirs)
+
     # auto-detect rdma
     if has_rdma_header():
         LIBRARIES += ['rdmacm', 'ibverbs', 'rt']
