@@ -60,10 +60,8 @@ namespace deep_inc
 
             int copy(void *dst, const void *src, size_t len);
 
-#ifndef BYTEPS_BUILDING_SERVER
             bool isRoot();
             std::shared_ptr<BytePSComm> getComm() { return _comm; }
-#endif
 
             DataType GetDataType(int dtype) { return static_cast<DataType>(dtype); }
 
