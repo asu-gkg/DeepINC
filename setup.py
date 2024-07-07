@@ -144,7 +144,8 @@ def get_common_options(build_ext):
                'deep_inc/common/global.cc',
                'deep_inc/common/nccl_manager.cc',
                'deep_inc/common/ready_table.cc',
-               'deep_inc/common/scheduled_queue.cc',]
+               'deep_inc/common/scheduled_queue.cc',
+               'deep_inc/common/shared_memory.cc',]
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
