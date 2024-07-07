@@ -389,7 +389,7 @@ namespace deep_inc
             if (_ps)
             {
                 // shutdown _ps and wait for the completion acks of other workers/servers
-                ps::Finalize(0, ps::Node::WORKER, true);
+                ps::Finalize(0, true);
                 delete _ps;
                 _ps = NULL;
             }
