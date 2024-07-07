@@ -16,6 +16,39 @@ namespace deep_inc
             return &update_buf_[key];
         }
 
+        void SendPullResponse(const DataHandleType type, const uint64_t key,
+                              const ps::KVMeta &req_meta, ps::KVServer<char> *server)
+        {
+            std::lock_guard<std::mutex> lock(pullresp_mu_);
+            auto updates = GetUpdateBuf(key);
+            CHECK(updates->merged.tensor) << "init " << key << " first";
+            char *data = updates->merged.tensor;
+            auto len = updates->merged.len;
+
+            // send pull response
+            auto iterator = pull_response_map_.find(key);
+            if (iterator == pull_response_map_.end())
+            { // new key
+                ps::KVPairs<char> response;
+                response.keys = {EncodeKey(key)};
+                response.lens = {len};
+                response.vals = ps::SArray<char>(data, len, false); // zero copy
+                pull_response_map_[key] = response;                 // add to the map
+                server->Response(req_meta, response);
+            }
+            else
+            { // not new key, then reuse the memory address to avoid ibv_reg_mr on
+              // RDMA data path
+                ps::KVPairs<char> *response = &iterator->second;
+
+                auto p = static_cast<char *>(data);
+                CHECK(p);
+                response->lens = {len};
+                response->vals = ps::SArray<char>(p, len, false);
+                server->Response(req_meta, *response);
+            }
+        }
+
         void DeepIncServerEngineThread(int i)
         {
             auto &q = engine_queues_[i];
@@ -62,7 +95,7 @@ namespace deep_inc
                         if (seen_sender_[i][msg.key].find(it->sender) ==
                             seen_sender_[i][msg.key].end())
                         {
-                            SendPullResponse(msg.type, msg.key, *it, byteps_server_);
+                            SendPullResponse(msg.type, msg.key, *it, inc_server_);
                             pull_cnt_[i][msg.key] += 1;
                             seen_sender_[i][msg.key].insert(it->sender);
                             it = q_pull_reqmeta_[i][msg.key].erase(it);

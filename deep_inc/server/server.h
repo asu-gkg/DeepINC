@@ -34,6 +34,10 @@ namespace deep_inc
         size_t engine_thread_num_ = 4;
         volatile bool enable_schedule_ = false;
 
+        std::mutex pullresp_mu_;
+        std::unordered_map<uint64_t, ps::KVPairs<char>> push_response_map_;
+        std::unordered_map<uint64_t, ps::KVPairs<char>> pull_response_map_;
+
         // byteps handler
         std::mutex handle_mu_;
         std::mutex update_buf_mu_;
@@ -42,17 +46,32 @@ namespace deep_inc
 
         // push & pull flag
         std::vector<std::mutex> flag_mu_;
-        std::vector<std::unordered_map<uint64_t, bool> > is_push_finished_;
-        std::vector<std::unordered_map<uint64_t, std::vector<ps::KVMeta> > > q_pull_reqmeta_;
-        std::vector<std::unordered_map<uint64_t, std::set<int> > > seen_sender_;
-        std::vector<std::unordered_map<uint64_t, size_t> > pull_cnt_;
-
+        std::vector<std::unordered_map<uint64_t, bool>> is_push_finished_;
+        std::vector<std::unordered_map<uint64_t, std::vector<ps::KVMeta>>> q_pull_reqmeta_;
+        std::vector<std::unordered_map<uint64_t, std::set<int>>> seen_sender_;
+        std::vector<std::unordered_map<uint64_t, size_t>> pull_cnt_;
 
         deep_inc::common::CpuReducer *inc_reducer_;
         ps::KVServer<SERVER_DATA_TYPE> *inc_server_;
         std::unordered_map<uint64_t, BytePSArray> store_;
 
         std::vector<uint64_t> acc_load_;
+
+        int DivUp(int x, int y) { return (x + y - 1) / y; }
+        int RoundUp(int x, int y) { return DivUp(x, y) * y; }
+
+        uint64_t DecodeKey(ps::Key key)
+        {
+            auto kr = ps::Postoffice::Get()->GetServerKeyRanges()[ps::MyRank()];
+            return key - kr.begin();
+        }
+
+        uint64_t EncodeKey(ps::Key key)
+        {
+            auto kr = ps::Postoffice::Get()->GetServerKeyRanges()[ps::MyRank()];
+            return key + kr.begin();
+        }
+
         extern "C" void start_server();
     }
 }
