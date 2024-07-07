@@ -22,6 +22,8 @@ namespace deep_inc
                 }
                 CHECK(msg.dst);
                 CHECK(msg.src);
+
+                printf("DeepIncServer Engine Thread %d received message from %d\n", i, msg.src);
             }
             
         }

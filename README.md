@@ -1,6 +1,7 @@
 # Install
 ```
 sudo apt-get install libprotobuf-dev protobuf-compiler
+sudo apt install nvidia-cuda-toolkit
 cd ps-lite && make -j
 python3 setup.py build_ext --inplace
 ```
