@@ -13,7 +13,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="重新配置环境变量">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/common.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/compressor.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/compressor_registry.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/error_feedback.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/error_feedback.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/impl/dithering.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/impl/dithering.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/momentum.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/momentum.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/utils.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/half.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/server/server.cc" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/server.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +91,7 @@
       <workItem from="1720160852315" duration="3134000" />
       <workItem from="1720248007025" duration="878000" />
       <workItem from="1720255055680" duration="6000" />
-      <workItem from="1720325990885" duration="675000" />
+      <workItem from="1720325990885" duration="702000" />
     </task>
     <task id="LOCAL-00001" summary="change import path">
       <created>1720092434837</created>

@@ -30,39 +30,12 @@ namespace deep_inc
                 CHECK(msg.dst);
                 CHECK(msg.src);
 
-                auto iter = compressor_map_.find(msg.key);
-                if (iter != compressor_map_.end())
+                if (msg.ops == ALL_RECV)
                 {
-                    // compress
-                    if (msg.ops == ALL_RECV)
-                    {
-                        common::compressor::tensor_t grad(reinterpret_cast<char *>(msg.src),
-                                                          msg.len, msg.type.dtype);
-                        auto compressed = iter->second->Compress(grad);
-                        // 1. compress
-                        auto updates = GetUpdateBuf(msg.key);
-                        updates->merged.tensor = compressed.data;
-                        updates->merged.len = compressed.size;
-                    }
-                    else
-                    { // decompress
-                        auto compressed_len = msg.sarray.lens[0];
-                        CHECK_LE(compressed_len, msg.len);
-                        common::compressor::tensor_t compressed(
-                            reinterpret_cast<char *>(msg.src), compressed_len, msg.type.dtype);
-                        auto decompressed = iter->second->Decompress(compressed);
-                        msg.src = decompressed.data;
-                    }
-                }
-                else
-                {
-                    if (msg.ops == ALL_RECV)
-                    {
-                        // 2. no compress
-                        auto updates = GetUpdateBuf(msg.key);
-                        updates->merged.tensor = reinterpret_cast<char *>(msg.src);
-                        updates->merged.len = msg.len;
-                    }
+                    // 2. no compress
+                    auto updates = GetUpdateBuf(msg.key);
+                    updates->merged.tensor = reinterpret_cast<char *>(msg.src);
+                    updates->merged.len = msg.len;
                 }
 
                 bool is_debug = (debug_mode_ && (debug_key_ == msg.key));
