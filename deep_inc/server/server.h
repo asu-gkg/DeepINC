@@ -34,18 +34,14 @@ namespace deep_inc
         size_t engine_thread_num_ = 4;
         volatile bool enable_schedule_ = false;
 
-
-
         // byteps handler
+        std::mutex handle_mu_;
         std::mutex update_buf_mu_;
-        std::unordered_map<uint64_t, UpdateBuf> update_buf_;
         std::unordered_map<uint64_t, UpdateBuf> update_buf_;
         std::unordered_map<uint64_t, std::unique_ptr<common::compressor::Compressor>> compressor_map_;
 
-
-
         deep_inc::common::CpuReducer *inc_reducer_;
-        ps::KVServer<SERVER_DATA_TYPE>* inc_server_;
+        ps::KVServer<SERVER_DATA_TYPE> *inc_server_;
         std::unordered_map<uint64_t, BytePSArray> store_;
 
         std::vector<uint64_t> acc_load_;
