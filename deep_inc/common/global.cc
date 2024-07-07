@@ -18,7 +18,6 @@
 
 #include <sstream>
 
-#include "compressor/compressor.h"
 #include "global.h"
 
 namespace deep_inc
