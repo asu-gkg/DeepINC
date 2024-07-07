@@ -3,6 +3,7 @@
 sudo apt-get install libprotobuf-dev protobuf-compiler
 sudo apt install nvidia-cuda-toolkit
 conda install -c nvidia cuda-toolkit
+conda install -c nvidia nccl
 
 git clone https://github.com/asu-gkg/DeepINC.git
 conda activate base
