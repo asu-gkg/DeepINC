@@ -317,7 +317,7 @@ namespace deep_inc
                 _my_role == BytePSRole::LOCAL_ROOT)
             { // only the root needs networking
                 // init low-level ps implementation
-                ps::StartPS(0, ps::Node::WORKER, -1, true, "byteps\0");
+                ps::Start(0, "byteps\0");
                 _ps = new ps::KVWorker<char>(0, 0, 0);
                 if (BytePSGlobal::IsResuming() || !ps::Postoffice::Get()->is_recovery())
                 {
