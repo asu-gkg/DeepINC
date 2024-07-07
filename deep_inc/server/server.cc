@@ -54,76 +54,76 @@ namespace deep_inc
             auto &q = engine_queues_[i];
             while (true)
             {
-                // BytePSEngineMessage msg;
-                // q->WaitAndPop(&msg);
-                // if (msg.ops == TERMINATE)
-                //     break;
-                // // do some check
-                // CHECK(msg.dst);
-                // CHECK(msg.src);
+                BytePSEngineMessage msg;
+                q->WaitAndPop(&msg);
+                if (msg.ops == TERMINATE)
+                    break;
+                // do some check
+                CHECK(msg.dst);
+                CHECK(msg.src);
 
-                // if (msg.ops == ALL_RECV)
-                // {
-                //     // 2. no compress
-                //     auto updates = GetUpdateBuf(msg.key);
-                //     updates->merged.tensor = reinterpret_cast<char *>(msg.src);
-                //     updates->merged.len = msg.len;
-                // }
+                if (msg.ops == ALL_RECV)
+                {
+                    // 2. no compress
+                    auto updates = GetUpdateBuf(msg.key);
+                    updates->merged.tensor = reinterpret_cast<char *>(msg.src);
+                    updates->merged.len = msg.len;
+                }
 
-                // switch (msg.ops)
-                // {
-                // case COPY_FIRST:
-                // {
-                //     inc_reducer_->copy(msg.dst, msg.src, msg.len);
-                // }
-                // break;
+                switch (msg.ops)
+                {
+                case COPY_FIRST:
+                {
+                    inc_reducer_->copy(msg.dst, msg.src, msg.len);
+                }
+                break;
 
-                // case ALL_RECV:
-                // {
-                //     std::lock_guard<std::mutex> lock(flag_mu_[i]);
-                //     if (is_push_finished_[i].find(msg.key) == is_push_finished_[i].end())
-                //     {
-                //         is_push_finished_[i][msg.key] = false;
-                //         pull_cnt_[i][msg.key] = 0;
-                //         seen_sender_[i][msg.key].clear();
-                //     }
-                //     is_push_finished_[i][msg.key] = true;
+                case ALL_RECV:
+                {
+                    std::lock_guard<std::mutex> lock(flag_mu_[i]);
+                    if (is_push_finished_[i].find(msg.key) == is_push_finished_[i].end())
+                    {
+                        is_push_finished_[i][msg.key] = false;
+                        pull_cnt_[i][msg.key] = 0;
+                        seen_sender_[i][msg.key].clear();
+                    }
+                    is_push_finished_[i][msg.key] = true;
 
-                //     auto it = q_pull_reqmeta_[i][msg.key].begin();
-                //     while (it != q_pull_reqmeta_[i][msg.key].end())
-                //     {
-                //         if (seen_sender_[i][msg.key].find(it->sender) ==
-                //             seen_sender_[i][msg.key].end())
-                //         {
-                //             SendPullResponse(msg.type, msg.key, *it, inc_server_);
-                //             pull_cnt_[i][msg.key] += 1;
-                //             seen_sender_[i][msg.key].insert(it->sender);
-                //             it = q_pull_reqmeta_[i][msg.key].erase(it);
-                //         }
-                //         else
-                //         {
-                //             ++it;
-                //         }
-                //         if (pull_cnt_[i][msg.key] == (size_t)ps::NumWorkers())
-                //         {
-                //             is_push_finished_[i][msg.key] = false;
-                //             pull_cnt_[i][msg.key] = 0;
-                //             seen_sender_[i][msg.key].clear();
-                //             break;
-                //         }
-                //     }
-                // }
-                // break;
+                    auto it = q_pull_reqmeta_[i][msg.key].begin();
+                    while (it != q_pull_reqmeta_[i][msg.key].end())
+                    {
+                        if (seen_sender_[i][msg.key].find(it->sender) ==
+                            seen_sender_[i][msg.key].end())
+                        {
+                            SendPullResponse(msg.type, msg.key, *it, inc_server_);
+                            pull_cnt_[i][msg.key] += 1;
+                            seen_sender_[i][msg.key].insert(it->sender);
+                            it = q_pull_reqmeta_[i][msg.key].erase(it);
+                        }
+                        else
+                        {
+                            ++it;
+                        }
+                        if (pull_cnt_[i][msg.key] == (size_t)ps::NumWorkers())
+                        {
+                            is_push_finished_[i][msg.key] = false;
+                            pull_cnt_[i][msg.key] = 0;
+                            seen_sender_[i][msg.key].clear();
+                            break;
+                        }
+                    }
+                }
+                break;
 
-                // case SUM_RECV:
-                // {
-                //     auto bps_type = inc_reducer_->GetDataType(msg.type.dtype);
-                //     CHECK_GE(inc_reducer_->sum(msg.dst, msg.src, msg.len, bps_type), 0);
-                // }
-                // break;
-                // default:
-                //     CHECK(0);
-                // }
+                case SUM_RECV:
+                {
+                    auto bps_type = inc_reducer_->GetDataType(msg.type.dtype);
+                    CHECK_GE(inc_reducer_->sum(msg.dst, msg.src, msg.len, bps_type), 0);
+                }
+                break;
+                default:
+                    CHECK(0);
+                }
             }
         }
 

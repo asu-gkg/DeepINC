@@ -217,12 +217,19 @@ def get_common_options(build_ext):
                      'ps-lite/deps/lib/libzmq.a']
     
     nccl_include_dirs, nccl_lib_dirs, nccl_libs = get_nccl_vals()
+
     INCLUDES += nccl_include_dirs
     LIBRARY_DIRS += nccl_lib_dirs
     LIBRARIES += nccl_libs
     # RDMA and NUMA libs
     LIBRARIES += ['numa', 'cudart']
+
+    cuda_include_dirs, cuda_lib_dirs = get_cuda_dirs(
+        build_ext, COMPILE_FLAGS)
     
+    MACROS += [('HAVE_CUDA', '1')]
+    INCLUDES += cuda_include_dirs
+    LIBRARY_DIRS += cuda_lib_dirs
 
     # auto-detect rdma
     if has_rdma_header():
@@ -233,6 +240,7 @@ def get_common_options(build_ext):
         if ucx_home:
             INCLUDES += [f'{ucx_home}/include']
             LIBRARY_DIRS += [f'{ucx_home}/lib']
+    
 
     return dict(MACROS=MACROS,
                 INCLUDES=INCLUDES,
