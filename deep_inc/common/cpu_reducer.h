@@ -26,11 +26,7 @@
 #include "common.h"
 #include "logging.h"
 
-#ifndef BYTEPS_BUILDING_SERVER
 #include "communicator.h"
-#else
-typedef void BytePSComm;
-#endif
 
 #include <stdint.h>
 
