@@ -45,13 +45,13 @@ namespace deep_inc
 {
     namespace common
     {
-        namespace compressor
-        {
-            struct BPSTensor;
-            typedef BPSTensor tensor_t;
-            class Compressor;
-            class ErrorFeedback;
-        } // namespace compressor
+        // namespace compressor
+        // {
+        //     struct BPSTensor;
+        //     typedef BPSTensor tensor_t;
+        //     class Compressor;
+        //     class ErrorFeedback;
+        // } // namespace compressor
 
 // Device ID used for CPU.
 #define CPU_DEVICE_ID (-1)
@@ -221,7 +221,7 @@ namespace deep_inc
                                std::unordered_map<int, std::queue<BPSCommTime *>>>
                 part_comm_time;
             // Compressor list
-            std::vector<std::shared_ptr<compressor::Compressor>> compressor_list;
+            // std::vector<std::shared_ptr<compressor::Compressor>> compressor_list;
             // kwargs
             std::unordered_map<std::string, std::string> kwargs;
         } BPSContext;
@@ -282,9 +282,9 @@ namespace deep_inc
             // How many partitions
             unsigned int total_partnum = 0;
             // Compressor
-            std::shared_ptr<compressor::Compressor> compressor;
+            // std::shared_ptr<compressor::Compressor> compressor;
             // Compressed
-            std::shared_ptr<compressor::tensor_t> compressed;
+            // std::shared_ptr<compressor::tensor_t> compressed;
         };
         using TensorTable = std::unordered_map<std::string, TensorTableEntry>;
 

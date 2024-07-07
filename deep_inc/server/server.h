@@ -42,7 +42,7 @@ namespace deep_inc
         std::mutex handle_mu_;
         std::mutex update_buf_mu_;
         std::unordered_map<uint64_t, UpdateBuf> update_buf_;
-        std::unordered_map<uint64_t, std::unique_ptr<common::compressor::Compressor>> compressor_map_;
+        // std::unordered_map<uint64_t, std::unique_ptr<common::compressor::Compressor>> compressor_map_;
 
         // push & pull flag
         std::vector<std::mutex> flag_mu_;
