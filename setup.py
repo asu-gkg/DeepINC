@@ -94,6 +94,67 @@ def get_cpp_flags(build_ext):
 
     raise DistutilsPlatformError(last_err)
 
+def get_cuda_dirs(build_ext, cpp_flags):
+    cuda_include_dirs = []
+    cuda_lib_dirs = []
+
+    cuda_home = os.environ.get('BYTEPS_CUDA_HOME')
+    if cuda_home:
+        cuda_include_dirs += ['%s/include' % cuda_home]
+        cuda_lib_dirs += ['%s/lib' % cuda_home, '%s/lib64' % cuda_home]
+
+    cuda_include = os.environ.get('BYTEPS_CUDA_INCLUDE')
+    if cuda_include:
+        cuda_include_dirs += [cuda_include]
+
+    cuda_lib = os.environ.get('BYTEPS_CUDA_LIB')
+    if cuda_lib:
+        cuda_lib_dirs += [cuda_lib]
+
+    if not cuda_include_dirs and not cuda_lib_dirs:
+        # default to /usr/local/cuda
+        cuda_include_dirs += ['/usr/local/cuda/include']
+        cuda_lib_dirs += ['/usr/local/cuda/lib', '/usr/local/cuda/lib64']
+
+    try:
+        test_compile(build_ext, 'test_cuda', libraries=['cudart'], include_dirs=cuda_include_dirs,
+                     library_dirs=cuda_lib_dirs, extra_compile_preargs=cpp_flags,
+                     code=textwrap.dedent('''\
+            #include <cuda_runtime.h>
+            void test() {
+                cudaSetDevice(0);
+            }
+            '''))
+    except (CompileError, LinkError):
+        raise DistutilsPlatformError(
+            'CUDA library was not found (see error above).\n'
+            'Please specify correct CUDA location with the BYTEPS_CUDA_HOME '
+            'environment variable or combination of BYTEPS_CUDA_INCLUDE and '
+            'BYTEPS_CUDA_LIB environment variables.\n\n'
+            'BYTEPS_CUDA_HOME - path where CUDA include and lib directories can be found\n'
+            'BYTEPS_CUDA_INCLUDE - path to CUDA include directory\n'
+            'BYTEPS_CUDA_LIB - path to CUDA lib directory')
+
+    return cuda_include_dirs, cuda_lib_dirs
+
+def get_nccl_vals():
+    nccl_include_dirs = []
+    nccl_lib_dirs = []
+    nccl_libs = []
+
+    nccl_home = os.environ.get('BYTEPS_NCCL_HOME', '/usr/local/nccl')
+    if nccl_home:
+        nccl_include_dirs += ['%s/include' % nccl_home]
+        nccl_lib_dirs += ['%s/lib' % nccl_home, '%s/lib64' % nccl_home]
+
+    nccl_link_mode = os.environ.get('BYTEPS_NCCL_LINK', 'SHARED')
+    if nccl_link_mode.upper() == 'SHARED':
+        nccl_libs += ['nccl']
+    else:
+        nccl_libs += ['nccl_static']
+
+    return nccl_include_dirs, nccl_lib_dirs, nccl_libs
+
 
 def get_link_flags(build_ext):
     last_err = None
@@ -152,11 +213,16 @@ def get_common_options(build_ext):
     LIBRARY_DIRS = []
     LIBRARIES = ['ps']
 
-    # RDMA and NUMA libs
-    LIBRARIES += ['numa']
-
     EXTRA_OBJECTS = ['ps-lite/build/libps.a',
                      'ps-lite/deps/lib/libzmq.a']
+    
+    nccl_include_dirs, nccl_lib_dirs, nccl_libs = get_nccl_vals()
+    INCLUDES += nccl_include_dirs
+    LIBRARY_DIRS += nccl_lib_dirs
+    LIBRARIES += nccl_libs
+    # RDMA and NUMA libs
+    LIBRARIES += ['numa']
+    
 
     # auto-detect rdma
     if has_rdma_header():
@@ -182,6 +248,7 @@ def get_common_options(build_ext):
 class custom_build_ext(build_ext):
     def build_extensions(self):
         options = get_common_options(self)
+        options['LIBRARIES'] += ['cudart']
         try:
             build_server(self, options)
         except:
