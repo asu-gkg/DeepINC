@@ -14,7 +14,7 @@
 #include "common.h"
 #include "cpu_reducer.h"
 #include "logging.h"
-#include "ps.h"
+#include "ps/ps.h"
 #include "communicator.h"
 #include "nccl_manager.h"
 #include "scheduled_queue.h"
