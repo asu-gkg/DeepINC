@@ -36,10 +36,10 @@ namespace deep_inc
         class BytePSGlobal
         {
         public:
-            // static void Init();
-            // static void Start(const std::vector<LoopFunction> &func);
-            // static Status CheckInit();
-            // static bool ShouldShutdown() { return _should_shutdown; }
+            static void Init();
+            static void Start(const std::vector<LoopFunction> &func);
+            static Status CheckInit();
+            static bool ShouldShutdown() { return _should_shutdown; }
             // static void Shutdown();
 
             static int GetRank() { return _rank; }
@@ -57,9 +57,9 @@ namespace deep_inc
             {
                 return _local_size / _nccl_manager->GetSize();
             }
-            // static bool IsRootDevice() { return _is_root_device; }
-            // static bool IsDistributed() { return _is_distributed_job; }
-            // static bool IsCrossPcieSwitch() { return _is_cross_pcie_switch; }
+            static bool IsRootDevice() { return _is_root_device; }
+            static bool IsDistributed() { return _is_distributed_job; }
+            static bool IsCrossPcieSwitch() { return _is_cross_pcie_switch; }
             // static BytePSRole GetMyRole() { return _my_role; }
             // static std::shared_ptr<BytePSComm> GetBasicComm() { return _basic_comm; }
             // static std::shared_ptr<BytePSSharedMemory> GetSharedMemoryObj()
@@ -95,7 +95,7 @@ namespace deep_inc
             // static cudaStream_t *GetCopyHost2DeviceStream();
 
             // // methods to access or modify the _ready_table
-            // static ReadyTable *GetReduceTable() { return _reduce_table; }
+            static ReadyTable *GetReduceTable() { return _reduce_table; }
             // static ReadyTable *GetPcieReduceTable() { return _pcie_reduce_table; }
             // static ReadyTable *GetBroadcastTable() { return _broadcast_table; }
             // static ReadyTable *GetPushTable() { return _push_table; }
@@ -173,8 +173,8 @@ namespace deep_inc
             // static uint32_t _min_compress_bytes;
 
             // // (key, ready_signal_count) pair, only valid for root device
-            // static ReadyTable *_reduce_table;
-            // static ReadyTable *_pcie_reduce_table;
+            static ReadyTable *_reduce_table;
+            static ReadyTable *_pcie_reduce_table;
             // static ReadyTable *_broadcast_table;
             // static ReadyTable *_push_table;
 
