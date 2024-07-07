@@ -57,7 +57,6 @@ namespace deep_inc
             return;
         }
 
-#ifndef BYTEPS_BUILDING_SERVER
         bool CpuReducer::isRoot()
         {
             if (!_comm)
@@ -66,7 +65,6 @@ namespace deep_inc
             }
             return (_comm->getRoot() == BytePSGlobal::GetLocalRank());
         }
-#endif
 
         int CpuReducer::sum(void *dst, const void *src, size_t len, DataType dtype)
         {
