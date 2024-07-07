@@ -222,7 +222,7 @@ def get_common_options(build_ext):
     LIBRARY_DIRS += nccl_lib_dirs
     LIBRARIES += nccl_libs
     # RDMA and NUMA libs
-    LIBRARIES += ['numa', 'cudart']
+    LIBRARIES += ['numa', 'cuda', 'cudart']
 
     cuda_include_dirs, cuda_lib_dirs = get_cuda_dirs(
         build_ext, COMPILE_FLAGS)
