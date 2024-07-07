@@ -139,7 +139,12 @@ def get_common_options(build_ext):
     SOURCES = ['deep_inc/server/server.cc',
                'deep_inc/common/cpu_reducer.cc',
                'deep_inc/common/common.cc',
-               'deep_inc/common/logging.cc',]
+               'deep_inc/common/logging.cc',
+               'deep_inc/common/communicator.cc',
+               'deep_inc/common/global.cc',
+               'deep_inc/common/nccl_manager.cc',
+               'deep_inc/common/ready_table.cc',
+               'deep_inc/common/scheduled_queue.cc',]
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
