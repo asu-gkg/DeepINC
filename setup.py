@@ -221,7 +221,7 @@ def get_common_options(build_ext):
     LIBRARY_DIRS += nccl_lib_dirs
     LIBRARIES += nccl_libs
     # RDMA and NUMA libs
-    LIBRARIES += ['numa']
+    LIBRARIES += ['numa', 'cudart']
     
 
     # auto-detect rdma
@@ -248,7 +248,6 @@ def get_common_options(build_ext):
 class custom_build_ext(build_ext):
     def build_extensions(self):
         options = get_common_options(self)
-        options['LIBRARIES'] += ['cudart']
         try:
             build_server(self, options)
         except:
