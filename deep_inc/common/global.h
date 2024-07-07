@@ -12,12 +12,15 @@
 #include <vector>
 
 #include "common.h"
+#include "communicator.h"
 #include "cpu_reducer.h"
 #include "logging.h"
-#include "ps/ps.h"
-#include "communicator.h"
 #include "nccl_manager.h"
+#include "ps/ps.h"
+#include "ready_table.h"
 #include "scheduled_queue.h"
+#include "shared_memory.h"
+#include "thread_pool.h"
 
 
 namespace deep_inc
