@@ -37,12 +37,11 @@ namespace deep_inc
                     updates->merged.len = msg.len;
                 }
 
-                bool is_debug = (debug_mode_ && (debug_key_ == msg.key));
                 switch (msg.ops)
                 {
                 case COPY_FIRST:
                 {
-                    bps_reducer_->copy(msg.dst, msg.src, msg.len);
+                    inc_reducer_->copy(msg.dst, msg.src, msg.len);
                 }
                 break;
 
@@ -85,30 +84,8 @@ namespace deep_inc
 
                 case SUM_RECV:
                 {
-                    auto bps_type = bps_reducer_->GetDataType(msg.type.dtype);
-                    if (is_debug)
-                    {
-                        std::lock_guard<std::mutex> lock(debug_mu_);
-                        LOG(INFO) << "stage: ENGINE_SUM_RECV_BEFORE \t"
-                                  << "dst: " << DEBUG_PRINT_TENSOR_VALUE(msg.dst) << "\t"
-                                  << "src: " << DEBUG_PRINT_TENSOR_VALUE(msg.src) << "\t"
-                                  << "dst_addr: " << DEBUG_PRINT_TENSOR_ADDRESS(msg.dst)
-                                  << "\t"
-                                  << "src_addr: " << DEBUG_PRINT_TENSOR_ADDRESS(msg.src)
-                                  << "\t";
-                    }
-                    CHECK_GE(bps_reducer_->sum(msg.dst, msg.src, msg.len, bps_type), 0);
-                    if (is_debug)
-                    {
-                        std::lock_guard<std::mutex> lock(debug_mu_);
-                        LOG(INFO) << "stage: ENGINE_SUM_RECV_AFTER \t"
-                                  << "dst: " << DEBUG_PRINT_TENSOR_VALUE(msg.dst) << "\t"
-                                  << "src: " << DEBUG_PRINT_TENSOR_VALUE(msg.src) << "\t"
-                                  << "dst_addr: " << DEBUG_PRINT_TENSOR_ADDRESS(msg.dst)
-                                  << "\t"
-                                  << "src_addr: " << DEBUG_PRINT_TENSOR_ADDRESS(msg.src)
-                                  << "\t";
-                    }
+                    auto bps_type = inc_reducer_->GetDataType(msg.type.dtype);
+                    CHECK_GE(inc_reducer_->sum(msg.dst, msg.src, msg.len, bps_type), 0);
                 }
                 break;
                 default:
