@@ -318,7 +318,7 @@ namespace deep_inc
             { // only the root needs networking
                 // init low-level ps implementation
                 ps::Start(0, "byteps\0");
-                _ps = new ps::KVWorker<char>(0, 0, 0);
+                _ps = new ps::KVWorker<char>(0, 0);
                 if (BytePSGlobal::IsResuming() || !ps::Postoffice::Get()->is_recovery())
                 {
                     ps::Postoffice::Get()->Barrier(
