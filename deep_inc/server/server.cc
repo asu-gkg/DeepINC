@@ -9,6 +9,13 @@ namespace deep_inc
         // engine related
         std::vector<PriorityQueue*> engine_queues_;
         std::vector<std::thread*> engine_threads_;
+
+        UpdateBuf *GetUpdateBuf(uint64_t key)
+        {
+            std::lock_guard<std::mutex> lock(update_buf_mu_);
+            return &update_buf_[key];
+        }
+
         void DeepIncServerEngineThread(int i)
         {
             std::cout << "DeepIncServer Engine Thread " << i << " started" << std::endl;
@@ -23,7 +30,23 @@ namespace deep_inc
                 CHECK(msg.dst);
                 CHECK(msg.src);
 
-                printf("DeepIncServer Engine Thread %d received message from %d\n", i, msg.src);
+                printf("DeepIncServer Engine Thread %d received message from %p\n", i, msg.src);
+
+                if (msg.ops==ALL_RECV){
+                    auto updates = GetUpdateBuf(msg.key);
+                    updates->merged.tensor = reinterpret_cast<char*>(msg.src);
+                    updates->merged.len = msg.len;
+                }
+
+                switch (msg.ops)
+                {
+                case COPY_FIRST:
+                    inc_reducer_->copy(msg.dst, msg.src, msg.len);
+                    break;
+                
+                default:
+                    break;
+                }
             }
             
         }
@@ -32,7 +55,7 @@ namespace deep_inc
                            const ps::KVPairs<char> &req_data,
                            ps::KVServer<char> *server)
         {
-
+            
         }
 
         void init_global_env()

@@ -5,6 +5,7 @@
 #include <cstring>
 #include <memory>
 #include <iostream>
+#include "global.h"
 
 typedef void DeepIncComm;
 
@@ -20,9 +21,11 @@ namespace deep_inc
             {
                 std::cout << "Clear CpuReducer" << std::endl;
             };
+            int copy(void* dst, const void* src, size_t len);
 
         private:
             std::shared_ptr<DeepIncComm> comm_;
+            int _num_threads;
         };
 
     }
