@@ -13,9 +13,7 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_BUILDING_SERVER
 #include "global.h"
-#endif
 
 #include <cmath>
 
@@ -28,7 +26,6 @@ namespace deep_inc
 
         CpuReducer::CpuReducer(std::shared_ptr<BytePSComm> comm)
         {
-#ifndef BYTEPS_BUILDING_SERVER
             std::vector<int> peers;
             auto pcie_size = BytePSGlobal::GetPcieSwitchSize();
             for (int i = BytePSGlobal::GetLocalRank() % pcie_size;
@@ -44,7 +41,7 @@ namespace deep_inc
             {
                 _comm = nullptr;
             }
-#endif
+
             if (getenv("BYTEPS_OMP_THREAD_PER_GPU"))
             {
                 _num_threads = atoi(getenv("BYTEPS_OMP_THREAD_PER_GPU"));

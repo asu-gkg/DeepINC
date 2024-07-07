@@ -312,4 +312,4 @@ namespace deep_inc
         }
 
     } // namespace common
-} // namespace byteps
+} // namespace deep_inc
