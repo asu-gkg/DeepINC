@@ -19,7 +19,7 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
-#include <cstring>
+#include <string>  
 
 namespace deep_inc
 {
