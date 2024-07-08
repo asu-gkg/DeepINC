@@ -212,7 +212,7 @@ def get_common_options(build_ext):
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
-    LIBRARY_DIRS = []
+    LIBRARY_DIRS = ['ps-lite/deps/lib']
     LIBRARIES = ['ps']
 
     EXTRA_OBJECTS = ['ps-lite/build/libps.a',
