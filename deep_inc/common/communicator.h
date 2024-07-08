@@ -104,9 +104,7 @@ namespace deep_inc
         {
         public:
             BytePSCommSocket() {}
-            BytePSCommSocket(std::shared_ptr<BytePSComm> comm,
-                             const std::string &path_suffix,
-                             const std::vector<int> &members);
+            BytePSCommSocket(std::shared_ptr<BytePSComm> comm, const std::string &path_suffix, const std::vector<int> &members);
 
             ~BytePSCommSocket()
             {

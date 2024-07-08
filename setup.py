@@ -142,7 +142,7 @@ def get_nccl_vals():
     nccl_lib_dirs = []
     nccl_libs = []
 
-    nccl_home = os.environ.get('BYTEPS_NCCL_HOME', 'nccl/build')
+    nccl_home = os.environ.get('BYTEPS_NCCL_HOME', 'nccl')
     if nccl_home:
         nccl_include_dirs += ['%s/include' % nccl_home]
         nccl_lib_dirs += ['%s/lib' % nccl_home, '%s/lib64' % nccl_home]

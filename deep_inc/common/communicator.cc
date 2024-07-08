@@ -23,7 +23,6 @@ namespace deep_inc
 {
     namespace common
     {
-
         // Copy constructor that provides the option to reconfigure members.
         // The ranks in members always use local_rank, regardless that the members
         // may be a subset of all local ranks.

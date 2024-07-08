@@ -15,6 +15,7 @@ conda activate base
 
 git clone https://github.com/NVIDIA/nccl.git
 cd nccl && make -j src.build
+export BYTEPS_NCCL_HOME=/path/to/nccl
 
 cd ps-lite && make -j
 python3 setup.py build_ext --inplace
