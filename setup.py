@@ -12,8 +12,8 @@ import shlex
 server_lib = Extension('deep_inc.server.c_lib', [])
 extensions_to_build = [server_lib]
 
-# os.environ["CC"] = "gcc"
-# os.environ["CXX"] = "g++"
+os.environ["CC"] = "gcc"
+os.environ["CXX"] = "g++"
 
 def has_rdma_header():
     ret_code = subprocess.call(
