@@ -24,7 +24,7 @@ cd ps-lite && make -j
 conda activate base
 export BYTEPS_NCCL_HOME=/home/asu/DeepINC/nccl/build
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-
+export BYTEPS_CUDA_HOME=/usr/local/cuda
 python3 setup.py build_ext --inplace
 ```
 
