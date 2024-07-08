@@ -142,7 +142,7 @@ def get_nccl_vals():
     nccl_lib_dirs = []
     nccl_libs = []
 
-    nccl_home = os.environ.get('BYTEPS_NCCL_HOME', 'nccl')
+    nccl_home = os.environ.get('BYTEPS_NCCL_HOME', 'nccl/build')
     if nccl_home:
         nccl_include_dirs += ['%s/include' % nccl_home]
         nccl_lib_dirs += ['%s/lib' % nccl_home, '%s/lib64' % nccl_home]
@@ -217,7 +217,7 @@ def get_common_options(build_ext):
                      'ps-lite/deps/lib/libzmq.a']
     
     nccl_include_dirs, nccl_lib_dirs, nccl_libs = get_nccl_vals()
-
+    print("NCCL_INCLUDES: ", nccl_include_dirs)
     INCLUDES += nccl_include_dirs
     LIBRARY_DIRS += nccl_lib_dirs
     LIBRARIES += nccl_libs
