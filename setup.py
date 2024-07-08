@@ -212,11 +212,12 @@ def get_common_options(build_ext):
     COMPILE_FLAGS = cpp_flags
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
-    LIBRARY_DIRS = ['ps-lite/deps/lib']
-    LIBRARIES = ['ps', 'protobuf']
+    LIBRARY_DIRS = []
+    LIBRARIES = ['ps']
 
     EXTRA_OBJECTS = ['ps-lite/build/libps.a',
-                     'ps-lite/deps/lib/libzmq.a']
+                     'ps-lite/deps/lib/libzmq.a', 
+                     'ps-lite/deps/lib/libprotobuf.a']
     
     nccl_include_dirs, nccl_lib_dirs, nccl_libs = get_nccl_vals()
     print("NCCL_INCLUDES: ", nccl_include_dirs)
