@@ -213,7 +213,7 @@ def get_common_options(build_ext):
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
     LIBRARY_DIRS = ['ps-lite/deps/lib']
-    LIBRARIES = ['ps']
+    LIBRARIES = ['ps', 'protobuf']
 
     EXTRA_OBJECTS = ['ps-lite/build/libps.a',
                      'ps-lite/deps/lib/libzmq.a']
