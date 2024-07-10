@@ -6,6 +6,8 @@ namespace deep_inc
 {
     namespace server
     {
+
+
         // engine related
         std::vector<PriorityQueue *> engine_queues_;
         std::vector<std::thread *> engine_threads_;
@@ -14,6 +16,30 @@ namespace deep_inc
         {
             std::lock_guard<std::mutex> lock(update_buf_mu_);
             return &update_buf_[key];
+        }
+
+        void SendPushResponse(uint64_t key, const ps::KVMeta &req,
+                              ps::KVServer<char> *server)
+        {
+            auto iterator = push_response_map_.find(key);
+            if (iterator == push_response_map_.end())
+            { // new key
+                ps::KVPairs<char> response;
+                push_response_map_[key] = response; // add to the map
+                server->Response(req, response);
+            }
+            else
+            { // not new key, then reuse the memory address to avoid ibv_reg_mr on
+              // RDMA data path
+                ps::KVPairs<char> *response = &iterator->second;
+                server->Response(req, *response);
+            }
+        }
+
+        BytePSArray *GetStore(uint64_t key)
+        {
+            std::lock_guard<std::mutex> lock(store_mu_);
+            return &store_[key];
         }
 
         void SendPullResponse(const DataHandleType type, const uint64_t key,
@@ -47,6 +73,37 @@ namespace deep_inc
                 response->vals = ps::SArray<char>(p, len, false);
                 server->Response(req_meta, *response);
             }
+        }
+
+        size_t GetThreadID(uint64_t key, size_t len)
+        {
+            std::lock_guard<std::mutex> lock(hash_mu_);
+            if (len == 0)
+            { // pull
+                CHECK_NE(hash_cache_.find(key), hash_cache_.end());
+                return hash_cache_[key];
+            }
+            if (hash_cache_.find(key) != hash_cache_.end())
+            {
+                return hash_cache_[key];
+            }
+            CHECK_GT(len, 0);
+            CHECK_EQ(acc_load_.size(), engine_thread_num_);
+            auto min_index = -1;
+            auto min_load = std::numeric_limits<uint64_t>::max();
+            for (size_t i = 0; i < engine_thread_num_; ++i)
+            {
+                if (acc_load_[i] < min_load)
+                {
+                    min_load = acc_load_[i];
+                    min_index = i;
+                }
+            }
+            CHECK_GE(min_index, 0);
+            CHECK_LT(min_index, engine_thread_num_);
+            acc_load_[min_index] += len;
+            hash_cache_[key] = min_index;
+            return hash_cache_[key];
         }
 
         void DeepIncServerEngineThread(int i)
@@ -128,10 +185,269 @@ namespace deep_inc
             }
         }
 
-        void BytePSHandler(const ps::KVMeta &req_meta,
-                           const ps::KVPairs<char> &req_data,
-                           ps::KVServer<char> *server)
+        void PageAlignedMalloc(void **ptr, size_t size)
         {
+            size_t page_size = sysconf(_SC_PAGESIZE);
+            void *p;
+            int size_aligned = RoundUp(size, page_size);
+            int ret = posix_memalign(&p, page_size, size_aligned);
+            CHECK_EQ(ret, 0) << "posix_memalign error: " << strerror(ret);
+            CHECK(p);
+            memset(p, 0, size);
+            *ptr = p;
+        }
+
+        void DeepIncServerHandle(const ps::KVMeta &req_meta,
+                                 const ps::KVPairs<char> &req_data,
+                                 ps::KVServer<char> *server)
+        {
+            std::lock_guard<std::mutex> lock(handle_mu_); // push & pull may have racing
+            DataHandleType type = DepairDataHandleType(req_meta.cmd);
+            // CHECK_EQ(type.requestType, RequestType::kDefaultPushPull);
+            // do some check
+            CHECK_EQ(req_data.keys.size(), (size_t)1);
+            if (log_key_info_)
+            {
+                if (req_meta.push)
+                {
+                    CHECK_EQ(req_data.lens.size(), (size_t)1);
+                    CHECK_EQ(req_data.vals.size(), (size_t)req_data.lens[0]);
+                    LOG(INFO) << "push key=" << DecodeKey(req_data.keys[0])
+                              << "\t sender=" << req_meta.sender
+                              << "\t size=" << (size_t)req_data.lens[0];
+                }
+                else
+                {
+                    LOG(INFO) << "pull key=" << (uint64_t)DecodeKey(req_data.keys[0])
+                              << "\t sender=" << req_meta.sender;
+                }
+            }
+            uint64_t key = DecodeKey(req_data.keys[0]);
+
+            // register compressor
+            if (type.requestType == RequestType::kCompressedPushPull)
+            {
+                if (compressor_map_.find(key) == compressor_map_.end())
+                {
+                    std::string content{reinterpret_cast<char *>(req_data.vals.data()),
+                                        static_cast<size_t>(req_data.lens[0])};
+                    auto kwargs = deep_inc::common::compressor::Deserialize(content);
+                    auto stored = GetStore(key);
+                    size_t aligned_size = deep_inc::common::Align(stored->len, stored->dtype);
+                    auto compressor_ptr =
+                        deep_inc::common::compressor::CompressorRegistry::Create(
+                            kwargs, aligned_size,
+                            static_cast<deep_inc::common::DataType>(stored->dtype));
+                    CHECK_NE(compressor_ptr, nullptr);
+                    compressor_map_[key] = std::move(compressor_ptr);
+                    if (log_key_info_)
+                    {
+                        LOG(INFO) << "register compressor for key=" << key;
+                    }
+                }
+
+                // buffer the request meta
+                auto updates = GetUpdateBuf(key);
+                updates->request.push_back(req_meta);
+                // should send response after collecting all init push
+                if (updates->request.size() < (size_t)ps::NumWorkers())
+                    return;
+
+                for (const auto &req : updates->request)
+                {
+                    SendPushResponse(key, req, server);
+                }
+                updates->request.clear();
+                return;
+            }
+
+            if (req_meta.push)
+            { // push request
+                CHECK_EQ(req_data.lens.size(), (size_t)1);
+                CHECK_EQ(req_data.vals.size(), (size_t)req_data.lens[0]);
+                auto stored = GetStore(key);
+                auto len = (size_t)req_data.lens[0];
+                auto recved = reinterpret_cast<char *>(req_data.vals.data());
+
+                if (!stored->tensor)
+                {
+                    auto updates = GetUpdateBuf(key);
+                    if (sync_mode_)
+                    {
+                        updates->merged.len = len;
+                        updates->merged.dtype = type.dtype;
+                    }
+                    // buffer the request meta
+                    updates->request.push_back(req_meta);
+                    // should send response after collecting all init push
+                    if (updates->request.size() < (size_t)ps::NumWorkers())
+                        return;
+                    if (log_key_info_)
+                    {
+                        LOG(INFO) << "Collected all " << updates->request.size()
+                                  << " requests for key=" << key
+                                  << ", init the store buffer size="
+                                  << (size_t)req_data.lens[0];
+                    }
+                    // init stored buffer, use page aligned memory
+                    size_t aligned_size = common::Align(len, type.dtype);
+                    PageAlignedMalloc((void **)&stored->tensor, aligned_size);
+                    stored->len = len;
+                    stored->dtype = type.dtype;
+                    CHECK(stored->tensor);
+
+                    inc_reducer_->copy(stored->tensor, recved,
+                                       len); // we may not need this copy
+                    for (const auto &req : updates->request)
+                    {
+                        SendPushResponse(key, req, server);
+                    }
+                    updates->request.clear();
+                }
+                else
+                {
+                    auto updates = GetUpdateBuf(key);
+                    auto tid = GetThreadID(key, len);
+                    if (updates->request.empty())
+                    { // from the first incoming worker
+                        if (sync_mode_)
+                        {
+                            if (debug_mode_ && (debug_key_ == key))
+                            {
+                                std::lock_guard<std::mutex> lock(debug_mu_);
+                                LOG(INFO) << "stage: FIRST_WORKER_RECV \t"
+                                          << "stored: " << DEBUG_PRINT_TENSOR_VALUE(stored->tensor)
+                                          << "\t"
+                                          << "recved: " << DEBUG_PRINT_TENSOR_VALUE(recved) << "\t"
+                                          << "len: " << len << "\t"
+                                          << "addr: " << DEBUG_PRINT_TENSOR_ADDRESS(recved);
+                            }
+                            updates->merged.tmp_sarray = req_data;
+                            // copy
+                            BytePSEngineMessage msg = {timestamp_++, type, key,
+                                                       stored->tensor, recved, stored->len,
+                                                       COPY_FIRST, req_data, req_meta};
+                            engine_queues_[tid]->Push(msg);
+                        }
+                        else
+                        { // async mode, directly add to the buffer
+                            CHECK_GE(inc_reducer_->sum((void *)stored->tensor, (void *)recved, len,
+                                                       inc_reducer_->GetDataType(stored->dtype)),
+                                     0);
+                        }
+                    }
+                    else
+                    { // from other workers
+                        CHECK(sync_mode_);
+                        // CHECK(updates.merged.tensor);
+                        if (debug_mode_ && (debug_key_ == key))
+                        {
+                            std::lock_guard<std::mutex> lock(debug_mu_);
+                            LOG(INFO) << "stage: OTHER_WORKER_SUM \t"
+                                      << "stored: " << DEBUG_PRINT_TENSOR_VALUE(stored->tensor)
+                                      << "\t"
+                                      << "recved: " << DEBUG_PRINT_TENSOR_VALUE(recved) << "\t"
+                                      << "len: " << len << "\t"
+                                      << "addr: " << DEBUG_PRINT_TENSOR_ADDRESS(recved);
+                        }
+                        if (is_engine_blocking_)
+                        {
+                            // TODO: decompress
+                            CHECK_GE(inc_reducer_->sum(
+                                         (void *)updates->merged.tensor, (void *)recved, len,
+                                         inc_reducer_->GetDataType(updates->merged.dtype)),
+                                     0);
+                        }
+                        else
+                        { // non-blocking
+                            BytePSEngineMessage msg = {timestamp_++, type, key,
+                                                       stored->tensor, recved, stored->len,
+                                                       SUM_RECV, req_data, req_meta};
+                            engine_queues_[tid]->Push(msg);
+                        }
+                    }
+                    // add a worker information (request.size() is the # workers received)
+                    updates->request.push_back(req_meta);
+                    SendPushResponse(key, req_meta, server);
+                    if (sync_mode_ && updates->request.size() == (size_t)ps::NumWorkers())
+                    {
+                        auto stored = GetStore(key);
+                        auto &update = updates->merged;
+                        if (debug_mode_ && (debug_key_ == key))
+                        {
+                            std::lock_guard<std::mutex> lock(debug_mu_);
+                            LOG(INFO) << "stage: COPY_MERGED_TO_STORE \t"
+                                      << "stored: " << DEBUG_PRINT_TENSOR_VALUE(stored->tensor)
+                                      << "\t"
+                                      << "merged: "
+                                      << DEBUG_PRINT_TENSOR_VALUE(updates->merged.tensor) << "\t"
+                                      << "recved: " << DEBUG_PRINT_TENSOR_VALUE(recved);
+                        }
+                        if (is_engine_blocking_)
+                        {
+                            // TODO: compress
+                            inc_reducer_->copy(stored->tensor, updates->merged.tensor, len);
+                        }
+                        else
+                        {
+                            BytePSEngineMessage msg = {
+                                timestamp_++, type, key, stored->tensor,
+                                stored->tensor, stored->len, ALL_RECV};
+                            engine_queues_[tid]->Push(msg);
+                            engine_queues_[tid]->ClearCounter(key);
+                        }
+                        updates->request.clear();
+                    }
+                    else if (!sync_mode_)
+                    {
+                        // async: clean the request buffer
+                        updates->request.clear();
+                    }
+                }
+            }
+            // else
+            // { // pull request
+            //     auto stored = GetStore(key);
+            //     CHECK(stored->tensor) << "Should init the buffer for key=" << key
+            //                           << " first";
+            //     if (is_engine_blocking_ || !sync_mode_)
+            //     {
+            //         SendPullResponse(type, key, req_meta, server);
+            //     }
+            //     else
+            //     {
+            //         auto tid = GetThreadID(key, 0);
+            //         std::lock_guard<std::mutex> lock(flag_mu_[tid]);
+            //         if (is_push_finished_[tid].find(key) == is_push_finished_[tid].end())
+            //         {
+            //             is_push_finished_[tid][key] = false;
+            //             pull_cnt_[tid][key] = 0;
+            //             seen_sender_[tid][key].clear();
+            //         }
+
+            //         auto it = seen_sender_[tid][key].find(req_meta.sender);
+            //         if (is_push_finished_[tid][key] && (it == seen_sender_[tid][key].end()))
+            //         {
+            //             // push already finished && not received the associated pull response
+            //             // yet
+            //             SendPullResponse(type, key, req_meta, server);
+            //             pull_cnt_[tid][key] += 1;
+            //             seen_sender_[tid][key].insert(req_meta.sender);
+
+            //             if (pull_cnt_[tid][key] == (size_t)ps::NumWorkers())
+            //             {
+            //                 is_push_finished_[tid][key] = false;
+            //                 pull_cnt_[tid][key] = 0;
+            //                 seen_sender_[tid][key].clear();
+            //             }
+            //         }
+            //         else
+            //         {
+            //             // push not finished, put into the queue, and wait for the engine
+            //             q_pull_reqmeta_[tid][key].push_back(req_meta);
+            //         }
+            //     }
+            // }
         }
 
         void init_global_env()
@@ -194,7 +510,7 @@ namespace deep_inc
             // init server instance
             ps::Start(0, "byteps\0");
             inc_server_ = new ps::KVServer<SERVER_DATA_TYPE>(0);
-            // inc_server_->set_request_handle(DeepIncServerHandle);
+            inc_server_->set_request_handle(DeepIncServerHandle);
 
             if (!ps::Postoffice::Get()->is_recovery())
             {
@@ -202,6 +518,7 @@ namespace deep_inc
                     0, ps::kWorkerGroup + ps::kServerGroup + ps::kScheduler);
             }
 
+            LOG(INFO) << "ps::Finalize...";
             // clean the server resource
             ps::Finalize(0, true);
             if (inc_server_)

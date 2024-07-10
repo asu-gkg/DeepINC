@@ -11,7 +11,6 @@ install:
 	python setup.py bdist_wheel
 
 build:
-
 	python3 setup.py build_ext --inplace
 
 run:

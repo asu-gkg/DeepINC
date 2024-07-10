@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/DeepINC.iml" filepath="$PROJECT_DIR$/.idea/DeepINC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/DeepINC2.iml" filepath="$PROJECT_DIR$/.idea/DeepINC2.iml" />
     </modules>
   </component>
 </project>
