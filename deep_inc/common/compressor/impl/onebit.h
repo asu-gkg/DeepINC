@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_IMPL_ONEBIT_H
-#define BYTEPS_COMPRESSOR_IMPL_ONEBIT_H
+#ifndef DeepInc_COMPRESSOR_IMPL_ONEBIT_H
+#define DeepInc_COMPRESSOR_IMPL_ONEBIT_H
 
 #include "../compressor.h"
 
@@ -92,4 +92,4 @@ class OnebitCompressor : public Compressor {
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_IMPL_ONEBIT_H
+#endif  // DeepInc_COMPRESSOR_IMPL_ONEBIT_H

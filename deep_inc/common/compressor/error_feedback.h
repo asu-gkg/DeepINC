@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_ERROR_FEEDBACK_H
-#define BYTEPS_COMPRESSOR_ERROR_FEEDBACK_H
+#ifndef DeepInc_COMPRESSOR_ERROR_FEEDBACK_H
+#define DeepInc_COMPRESSOR_ERROR_FEEDBACK_H
 
 #include "../cpu_reducer.h"
 #include "compressor.h"
@@ -97,4 +97,4 @@ class ErrorFeedback : public Compressor {
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_ERROR_FEEDBACK_H
+#endif  // DeepInc_COMPRESSOR_ERROR_FEEDBACK_H

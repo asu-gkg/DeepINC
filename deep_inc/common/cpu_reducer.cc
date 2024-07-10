@@ -26,15 +26,16 @@ namespace deep_inc
 
         CpuReducer::CpuReducer(std::shared_ptr<BytePSComm> comm)
         {
-            printf("Enter CpuReducer");
+            printf("Enter CpuReducer\n");
+#ifndef BYTEPS_BUILDING_SERVER
             std::vector<int> peers;
             auto pcie_size = BytePSGlobal::GetPcieSwitchSize();
-            printf("pcie_size: %d\n", pcie_size);
             for (int i = BytePSGlobal::GetLocalRank() % pcie_size;
                  i < BytePSGlobal::GetLocalSize(); i += pcie_size)
             {
                 peers.push_back(i);
             }
+            printf("Init peers\n");
             if (comm)
             {
                 _comm = std::make_shared<BytePSCommSocket>(comm, std::string("cpu"), peers);
@@ -43,7 +44,7 @@ namespace deep_inc
             {
                 _comm = nullptr;
             }
-
+#endif
             if (getenv("BYTEPS_OMP_THREAD_PER_GPU"))
             {
                 _num_threads = atoi(getenv("BYTEPS_OMP_THREAD_PER_GPU"));

@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_COMPRESSOR_H
-#define BYTEPS_COMPRESSOR_COMPRESSOR_H
+#ifndef DeepInc_COMPRESSOR_COMPRESSOR_H
+#define DeepInc_COMPRESSOR_COMPRESSOR_H
 
 #include <memory>
 
@@ -130,4 +130,4 @@ class Compressor {
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_COMPRESSOR_H
+#endif  // DeepInc_COMPRESSOR_COMPRESSOR_H

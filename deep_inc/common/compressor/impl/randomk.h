@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_IMPL_RANDOMK_H
-#define BYTEPS_COMPRESSOR_IMPL_RANDOMK_H
+#ifndef DeepInc_COMPRESSOR_IMPL_RANDOMK_H
+#define DeepInc_COMPRESSOR_IMPL_RANDOMK_H
 
 #include <random>
 
@@ -101,4 +101,4 @@ class RandomkCompressor : public Compressor {
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_IMPL_RANDOMK_H
+#endif  // DeepInc_COMPRESSOR_IMPL_RANDOMK_H

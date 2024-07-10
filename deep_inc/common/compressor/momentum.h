@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_MOMENTUM_H
-#define BYTEPS_COMPRESSOR_MOMENTUM_H
+#ifndef DeepInc_COMPRESSOR_MOMENTUM_H
+#define DeepInc_COMPRESSOR_MOMENTUM_H
 
 #include "../cpu_reducer.h"
 #include "compressor.h"
@@ -90,6 +90,6 @@ class Momentum : public Compressor {
 };
 }  // namespace compressor
 }  // namespace common
-}  // namespace byteps
+}  // namespace deep_inc
 
-#endif  // BYTEPS_COMPRESSOR_MOMENTUM_H
+#endif  // DeepInc_COMPRESSOR_MOMENTUM_H

@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_UTILS_H
-#define BYTEPS_COMPRESSOR_UTILS_H
+#ifndef DeepInc_COMPRESSOR_UTILS_H
+#define DeepInc_COMPRESSOR_UTILS_H
 
 #include <cmath>
 #include <limits>
@@ -248,4 +248,4 @@ T HyperParamFinder(const kwargs_t& kwargs, std::string name,
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_UTILS_H
+#endif  // DeepInc_COMPRESSOR_UTILS_H

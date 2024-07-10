@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_COMMON_H
-#define BYTEPS_COMPRESSOR_COMMON_H
+#ifndef DeepInc_COMPRESSOR_COMMON_H
+#define DeepInc_COMPRESSOR_COMMON_H
 
 #include <unordered_map>
 // #if __F16C__
@@ -96,4 +96,4 @@ using kwargs_t = std::unordered_map<std::string, std::string>;
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_COMMON_H
+#endif  // DeepInc_COMPRESSOR_COMMON_H

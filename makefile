@@ -18,5 +18,5 @@ run:
 
 clean:
 	python3 setup.py clean
-	rm -rf build DeepINC.egg-info
+	rm -rf build *.egg-info dist
 

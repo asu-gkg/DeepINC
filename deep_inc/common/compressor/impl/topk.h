@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_IMPL_TOPK_H
-#define BYTEPS_COMPRESSOR_IMPL_TOPK_H
+#ifndef DeepInc_COMPRESSOR_IMPL_TOPK_H
+#define DeepInc_COMPRESSOR_IMPL_TOPK_H
 
 #include "../compressor.h"
 

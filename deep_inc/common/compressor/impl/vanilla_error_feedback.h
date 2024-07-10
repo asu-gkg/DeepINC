@@ -13,8 +13,8 @@
 // limitations under the License.
 // =============================================================================
 
-#ifndef BYTEPS_COMPRESSOR_IMPL_VANILLA_ERROR_FEEDBACK_H
-#define BYTEPS_COMPRESSOR_IMPL_VANILLA_ERROR_FEEDBACK_H
+#ifndef DeepInc_COMPRESSOR_IMPL_VANILLA_ERROR_FEEDBACK_H
+#define DeepInc_COMPRESSOR_IMPL_VANILLA_ERROR_FEEDBACK_H
 
 #include "../error_feedback.h"
 
@@ -65,4 +65,4 @@ class VanillaErrorFeedbackCompressor : public ErrorFeedback {
 }  // namespace common
 }  // namespace byteps
 
-#endif  // BYTEPS_COMPRESSOR_IMPL_VANILLA_ERROR_FEEDBACK_H
+#endif  // DeepInc_COMPRESSOR_IMPL_VANILLA_ERROR_FEEDBACK_H

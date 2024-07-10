@@ -120,14 +120,40 @@ namespace deep_inc
                 CHECK(msg.dst);
                 CHECK(msg.src);
 
-                if (msg.ops == ALL_RECV)
+                auto iter = compressor_map_.find(msg.key);
+                if (iter != compressor_map_.end())
                 {
-                    // 2. no compress
-                    auto updates = GetUpdateBuf(msg.key);
-                    updates->merged.tensor = reinterpret_cast<char *>(msg.src);
-                    updates->merged.len = msg.len;
+                    // compress
+                    if (msg.ops == ALL_RECV)
+                    {
+                        common::compressor::tensor_t grad(reinterpret_cast<char *>(msg.src),
+                                                          msg.len, msg.type.dtype);
+                        auto compressed = iter->second->Compress(grad);
+                        // 1. compress
+                        auto updates = GetUpdateBuf(msg.key);
+                        updates->merged.tensor = compressed.data;
+                        updates->merged.len = compressed.size;
+                    }
+                    else
+                    { // decompress
+                        auto compressed_len = msg.sarray.lens[0];
+                        CHECK_LE(compressed_len, msg.len);
+                        common::compressor::tensor_t compressed(
+                            reinterpret_cast<char *>(msg.src), compressed_len, msg.type.dtype);
+                        auto decompressed = iter->second->Decompress(compressed);
+                        msg.src = decompressed.data;
+                    }
                 }
-
+                else
+                {
+                    if (msg.ops == ALL_RECV)
+                    {
+                        // 2. no compress
+                        auto updates = GetUpdateBuf(msg.key);
+                        updates->merged.tensor = reinterpret_cast<char *>(msg.src);
+                        updates->merged.len = msg.len;
+                    }
+                }
                 switch (msg.ops)
                 {
                 case COPY_FIRST:
@@ -405,49 +431,49 @@ namespace deep_inc
                     }
                 }
             }
-            // else
-            // { // pull request
-            //     auto stored = GetStore(key);
-            //     CHECK(stored->tensor) << "Should init the buffer for key=" << key
-            //                           << " first";
-            //     if (is_engine_blocking_ || !sync_mode_)
-            //     {
-            //         SendPullResponse(type, key, req_meta, server);
-            //     }
-            //     else
-            //     {
-            //         auto tid = GetThreadID(key, 0);
-            //         std::lock_guard<std::mutex> lock(flag_mu_[tid]);
-            //         if (is_push_finished_[tid].find(key) == is_push_finished_[tid].end())
-            //         {
-            //             is_push_finished_[tid][key] = false;
-            //             pull_cnt_[tid][key] = 0;
-            //             seen_sender_[tid][key].clear();
-            //         }
+            else
+            { // pull request
+                auto stored = GetStore(key);
+                CHECK(stored->tensor) << "Should init the buffer for key=" << key
+                                      << " first";
+                if (is_engine_blocking_ || !sync_mode_)
+                {
+                    SendPullResponse(type, key, req_meta, server);
+                }
+                else
+                {
+                    auto tid = GetThreadID(key, 0);
+                    std::lock_guard<std::mutex> lock(flag_mu_[tid]);
+                    if (is_push_finished_[tid].find(key) == is_push_finished_[tid].end())
+                    {
+                        is_push_finished_[tid][key] = false;
+                        pull_cnt_[tid][key] = 0;
+                        seen_sender_[tid][key].clear();
+                    }
 
-            //         auto it = seen_sender_[tid][key].find(req_meta.sender);
-            //         if (is_push_finished_[tid][key] && (it == seen_sender_[tid][key].end()))
-            //         {
-            //             // push already finished && not received the associated pull response
-            //             // yet
-            //             SendPullResponse(type, key, req_meta, server);
-            //             pull_cnt_[tid][key] += 1;
-            //             seen_sender_[tid][key].insert(req_meta.sender);
+                    auto it = seen_sender_[tid][key].find(req_meta.sender);
+                    if (is_push_finished_[tid][key] && (it == seen_sender_[tid][key].end()))
+                    {
+                        // push already finished && not received the associated pull response
+                        // yet
+                        SendPullResponse(type, key, req_meta, server);
+                        pull_cnt_[tid][key] += 1;
+                        seen_sender_[tid][key].insert(req_meta.sender);
 
-            //             if (pull_cnt_[tid][key] == (size_t)ps::NumWorkers())
-            //             {
-            //                 is_push_finished_[tid][key] = false;
-            //                 pull_cnt_[tid][key] = 0;
-            //                 seen_sender_[tid][key].clear();
-            //             }
-            //         }
-            //         else
-            //         {
-            //             // push not finished, put into the queue, and wait for the engine
-            //             q_pull_reqmeta_[tid][key].push_back(req_meta);
-            //         }
-            //     }
-            // }
+                        if (pull_cnt_[tid][key] == (size_t)ps::NumWorkers())
+                        {
+                            is_push_finished_[tid][key] = false;
+                            pull_cnt_[tid][key] = 0;
+                            seen_sender_[tid][key].clear();
+                        }
+                    }
+                    else
+                    {
+                        // push not finished, put into the queue, and wait for the engine
+                        q_pull_reqmeta_[tid][key].push_back(req_meta);
+                    }
+                }
+            }
         }
 
         void init_global_env()
