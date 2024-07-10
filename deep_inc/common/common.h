@@ -17,8 +17,10 @@
 #ifndef DeepInc_COMMON_H
 #define DeepInc_COMMON_H
 
+//#ifndef BYTEPS_BUILDING_SERVER // only include this part in worker
 #include <cuda_runtime.h>
 #include <nccl.h>
+//#endif
 
 #include <atomic>
 #include <functional>
