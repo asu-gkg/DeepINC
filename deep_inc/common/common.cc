@@ -116,7 +116,6 @@ namespace deep_inc
             return (((m + d) * (m + d + 1)) / 2) + d;
         }
 
-#ifndef BYTEPS_BUILDING_SERVER
         ncclDataType_t getNcclDataType(DataType dtype)
         {
             switch (dtype)
@@ -140,7 +139,6 @@ namespace deep_inc
             }
             return ncclFloat32;
         }
-#endif
 
         int getDataTypeLength(int dtype)
         {

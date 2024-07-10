@@ -76,7 +76,7 @@ def test_compile(build_ext, name, code, libraries=None, include_dirs=None, libra
 
 def get_cpp_flags(build_ext):
     last_err = None
-    default_flags = ['-fPIC', '-Ofast', '-Wall', '-shared', '-mno-avx512f']
+    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-frtti', '-Wall', '-shared', '-mno-avx512f', '-lcudart', '-lnuma', '-lnccl']
     flags_to_try = [default_flags]
     for cpp_flags in flags_to_try:
         try:
@@ -190,6 +190,7 @@ def build_server(build_ext, options):
     server_lib.extra_link_args = options['LINK_FLAGS']
     server_lib.library_dirs = options['LIBRARY_DIRS']
     server_lib.extra_objects = options['EXTRA_OBJECTS']
+    server_lib.libraries = options['LIBRARIES']
     build_ext.build_extension(server_lib)
 
 
@@ -213,7 +214,7 @@ def get_common_options(build_ext):
     LINK_FLAGS = link_flags
     INCLUDES = ['ps-lite/include']
     LIBRARY_DIRS = []
-    LIBRARIES = ['ps']
+    LIBRARIES = []
 
     EXTRA_OBJECTS = ['ps-lite/build/libps.a',
                      'ps-lite/deps/lib/libzmq.a', 
@@ -225,7 +226,8 @@ def get_common_options(build_ext):
     LIBRARY_DIRS += nccl_lib_dirs
     LIBRARIES += nccl_libs
     # RDMA and NUMA libs
-    LIBRARIES += ['numa', 'cuda', 'cudart']
+    LIBRARIES += ['numa']
+    LIBRARIES += ['cudart', 'cuda', 'cublas']
 
     cuda_include_dirs, cuda_lib_dirs = get_cuda_dirs(
         build_ext, COMPILE_FLAGS)
@@ -267,7 +269,6 @@ class custom_build_ext(build_ext):
         except:
             raise DistutilsSetupError('An ERROR occured while building the server module.\n\n'
                                       '%s' % traceback.format_exc())
-
 
 print("find_packages(): ", find_packages())
 setup(

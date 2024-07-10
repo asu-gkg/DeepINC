@@ -51,6 +51,7 @@ namespace deep_inc
 
         void DeepIncServerEngineThread(int i)
         {
+            printf("DeepIncServerEngineThread.%d start...\n", i);
             auto &q = engine_queues_[i];
             while (true)
             {
@@ -178,7 +179,6 @@ namespace deep_inc
             init_global_env();
             std::cout << "Server started" << std::endl;
             inc_reducer_ = new deep_inc::common::CpuReducer(nullptr);
-
             for (size_t i = 0; i < engine_thread_num_; i++)
             {
                 acc_load_.push_back(0);

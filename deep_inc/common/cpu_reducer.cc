@@ -26,8 +26,10 @@ namespace deep_inc
 
         CpuReducer::CpuReducer(std::shared_ptr<BytePSComm> comm)
         {
+            printf("Enter CpuReducer");
             std::vector<int> peers;
             auto pcie_size = BytePSGlobal::GetPcieSwitchSize();
+            printf("pcie_size: %d\n", pcie_size);
             for (int i = BytePSGlobal::GetLocalRank() % pcie_size;
                  i < BytePSGlobal::GetLocalSize(); i += pcie_size)
             {
