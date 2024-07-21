@@ -8,9 +8,12 @@ import os
 import sys
 import textwrap
 import shlex
+import re
 
 server_lib = Extension('deep_inc.server.c_lib', [])
-extensions_to_build = [server_lib]
+pytorch_lib = Extension('byteps.torch.c_lib', [])
+
+extensions_to_build = [server_lib, pytorch_lib]
 
 os.environ["CC"] = "gcc"
 os.environ["CXX"] = "g++"
@@ -22,6 +25,16 @@ def has_rdma_header():
         import warnings
         warnings.warn("\n\n No RDMA header file detected. Will disable RDMA for compilation! \n\n")
     return ret_code == 0
+
+
+def check_macro(macros, key):
+    return any(k == key and v for k, v in macros)
+
+def set_macro(macros, key, new_value):
+    if any(k == key for k, _ in macros):
+        return [(k, new_value if k == key else v) for k, v in macros]
+    else:
+        return macros + [(key, new_value)]
 
 
 def use_ucx():
@@ -74,9 +87,26 @@ def test_compile(build_ext, name, code, libraries=None, include_dirs=None, libra
     return shared_object_file
 
 
+def parse_version(version_str):
+    if "dev" in version_str:
+        return 9999999999
+    m = re.match('^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?', version_str)
+    if m is None:
+        return None
+
+    # turn version string to long integer
+    version = int(m.group(1)) * 10 ** 9
+    if m.group(2) is not None:
+        version += int(m.group(2)) * 10 ** 6
+    if m.group(3) is not None:
+        version += int(m.group(3)) * 10 ** 3
+    if m.group(4) is not None:
+        version += int(m.group(4))
+    return version
+
 def get_cpp_flags(build_ext):
     last_err = None
-    default_flags = ['-std=c++11', '-fPIC', '-Ofast', '-frtti', '-Wall', '-shared', '-mno-avx512f', '-lcudart', '-lnuma', '-lnccl']
+    default_flags = ['-std=c++17', '-fPIC', '-Ofast', '-frtti', '-Wall', '-shared', '-mno-avx512f', '-lcudart', '-lnuma', '-lnccl']
     flags_to_try = [default_flags]
     for cpp_flags in flags_to_try:
         try:
@@ -193,6 +223,92 @@ def build_server(build_ext, options):
     server_lib.libraries = options['LIBRARIES']
     build_ext.build_extension(server_lib)
 
+def check_torch_version():
+    try:
+        import torch
+        if torch.__version__ < '1.0.1':
+            raise DistutilsPlatformError(
+                'Your torch version %s is outdated.  '
+                'BytePS requires torch>=1.0.1' % torch.__version__)
+    except ImportError:
+            print('import torch failed, is it installed?\n\n%s' %
+                  traceback.format_exc())
+
+    # parse version
+    version = parse_version(torch.__version__)
+    if version is None:
+        raise DistutilsPlatformError(
+            'Unable to determine PyTorch version from the version string \'%s\'' % torch.__version__)
+    return version
+
+def is_torch_cuda(build_ext, include_dirs, extra_compile_args):
+    try:
+        from torch.utils.cpp_extension import include_paths
+        test_compile(build_ext, 'test_torch_cuda', include_dirs=include_dirs + include_paths(cuda=True),
+                     extra_compile_preargs=extra_compile_args, code=textwrap.dedent('''\
+            #include <ATen/cuda/CUDAContext.h>
+            #include <ATen/cuda/CUDAEvent.h>
+            void test() {
+            }
+            '''))
+        return True
+    except (CompileError, LinkError, EnvironmentError):
+        print('INFO: Above error indicates that this PyTorch installation does not support CUDA.')
+        return False
+
+def build_torch_extension(build_ext, options, torch_version):
+    pytorch_compile_flags = ["-std=c++17" if flag == "-std=c++11" 
+                             else flag for flag in options['COMPILE_FLAGS']]
+    have_cuda = is_torch_cuda(build_ext, include_dirs=options['INCLUDES'],
+                              extra_compile_args=pytorch_compile_flags)
+    if not have_cuda and check_macro(options['MACROS'], 'HAVE_CUDA'):
+        raise DistutilsPlatformError(
+            'byteps build with GPU support was requested, but this PyTorch '
+            'installation does not support CUDA.')
+
+    # Update HAVE_CUDA to mean that PyTorch supports CUDA.
+    updated_macros = set_macro(
+        options['MACROS'], 'HAVE_CUDA', str(int(have_cuda)))
+
+    # Export TORCH_VERSION equal to our representation of torch.__version__. Internally it's
+    # used for backwards compatibility checks.
+    updated_macros = set_macro(
+       updated_macros, 'TORCH_VERSION', str(torch_version))
+
+    # Always set _GLIBCXX_USE_CXX11_ABI, since PyTorch can only detect whether it was set to 1.
+    import torch
+    updated_macros = set_macro(updated_macros, '_GLIBCXX_USE_CXX11_ABI',
+                               str(int(torch.compiled_with_cxx11_abi())))
+
+    # PyTorch requires -DTORCH_API_INCLUDE_EXTENSION_H
+    updated_macros = set_macro(
+        updated_macros, 'TORCH_API_INCLUDE_EXTENSION_H', '1')
+
+    if have_cuda:
+        from torch.utils.cpp_extension import CUDAExtension as TorchExtension
+    else:
+        # CUDAExtension fails with `ld: library not found for -lcudart` if CUDA is not present
+        from torch.utils.cpp_extension import CppExtension as TorchExtension
+
+    ext = TorchExtension(pytorch_lib.name,
+                         define_macros=updated_macros,
+                         include_dirs=options['INCLUDES'],
+                         sources=options['SOURCES'] + ['byteps/torch/ops.cc',
+                                                       'byteps/torch/ready_event.cc',
+                                                       'byteps/torch/cuda_util.cc',
+                                                       'byteps/torch/adapter.cc',
+                                                       'byteps/torch/handle_manager.cc'],
+                         extra_compile_args=pytorch_compile_flags,
+                         extra_link_args=options['LINK_FLAGS'],
+                         extra_objects=options['EXTRA_OBJECTS'],
+                         library_dirs=options['LIBRARY_DIRS'],
+                         libraries=options['LIBRARIES'])
+
+    # Patch an existing pytorch_lib extension object.
+    for k, v in ext.__dict__.items():
+        pytorch_lib.__dict__[k] = v
+    build_ext.build_extension(pytorch_lib)
+
 
 def get_common_options(build_ext):
     cpp_flags = get_cpp_flags(build_ext)
@@ -201,6 +317,7 @@ def get_common_options(build_ext):
 
     MACROS = [('EIGEN_MPL2_ONLY', 1)]
     SOURCES = ['deep_inc/server/server.cc',
+               'deep_inc/common/operations.cc',
                'deep_inc/common/cpu_reducer.cc',
                'deep_inc/common/common.cc',
                'deep_inc/common/logging.cc',
@@ -210,6 +327,7 @@ def get_common_options(build_ext):
                'deep_inc/common/ready_table.cc',
                'deep_inc/common/scheduled_queue.cc',
                'deep_inc/common/shared_memory.cc',          
+               'deep_inc/common/core_loops.cc',
                 'deep_inc/common/compressor/compressor_registry.cc',
                'deep_inc/common/compressor/error_feedback.cc',
                'deep_inc/common/compressor/momentum.cc',
@@ -273,11 +391,19 @@ def get_common_options(build_ext):
 class custom_build_ext(build_ext):
     def build_extensions(self):
         options = get_common_options(self)
+        # try:
+        #     build_server(self, options)
+        # except:
+        #     raise DistutilsSetupError('An ERROR occured while building the server module.\n\n'
+        #                               '%s' % traceback.format_exc())
+        
+        import torch
         try:
-            build_server(self, options)
+            torch_version = check_torch_version()
+            build_torch_extension(self, options, torch_version)
         except:
-            raise DistutilsSetupError('An ERROR occured while building the server module.\n\n'
-                                      '%s' % traceback.format_exc())
+            pass
+        
 
 print("find_packages(): ", find_packages())
 setup(

@@ -39,7 +39,7 @@ python3 setup.py build_ext --inplace
 ```
 
 # Docker
-``` 
+```
 cd docker
 sudo docker build -t deepinc_image .
  

@@ -13,14 +13,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0ea70331-29af-46a8-b407-71badc0e4fd0" name="Changes" comment="重新配置环境变量">
-      <change afterPath="$PROJECT_DIR$/.idea/DeepINC2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deep_inc/server/server.cc" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/server.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deep_inc/server/server.h" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/server/server.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/makefile" beforeDir="false" afterPath="$PROJECT_DIR$/makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_10_24_6_33_PM__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/deep_inc/server/c_lib.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nccl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/common/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/common.h" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/common/common.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/compressor.h" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/common/compressor/compressor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deep_inc/common/compressor/impl/dithering.cc" beforeDir="false" afterPath="$PROJECT_DIR$/deep_inc/common/compressor/impl/dithering.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,9 +97,9 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -118,6 +121,7 @@
       <workItem from="1720346745560" duration="55000" />
       <workItem from="1720456688745" duration="467000" />
       <workItem from="1720607537924" duration="933000" />
+      <workItem from="1721567195544" duration="3000" />
     </task>
     <task id="LOCAL-00001" summary="change import path">
       <created>1720092434837</created>
